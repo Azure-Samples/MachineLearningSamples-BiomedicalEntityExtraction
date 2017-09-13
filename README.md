@@ -221,7 +221,7 @@ We also compare the performance of Tensorflow vs CNTK and see that CNTK performs
 ![Model Comparison 6](./Images/mc6.png)
 
 
-### 3. [Deployment](./Code/03_Deployment/ReadMe.md)**
+### 3. [Deployment](./Code/03_Deployment/ReadMe.md)
 We  deployed a web-service on a cluster in the [Azure Container Service (ACS)](https://azure.microsoft.com/en-us/services/container-service/). The operationalization environment provisions Docker and Kubernetes in the cluster to manage the web-service deployment. You can find further information on the operationalization process [here](model-management-service-deploy.md ).
 
 
