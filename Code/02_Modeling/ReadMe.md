@@ -1,4 +1,4 @@
-##**Code Structure for Model Creation and Evaluation**
+## **Code Structure for Model Creation and Evaluation**
 
 ### [01_FeatureEngineering](01_FeatureEngineering/ReadMe.md)
 The Notebook in the feature engineering section details how the Word2Vec Model can be used to extract Word Embeddings for Bio-Medical Data. We are using the Medline Abstracts downloaded and parsed in the Data Preparation 
