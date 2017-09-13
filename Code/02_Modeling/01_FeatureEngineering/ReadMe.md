@@ -1,4 +1,4 @@
-##[Train Word2Vec Word Embedding Model](2_Train_Word2Vec.ipynb)
+## [Train Word2Vec Word Embedding Model](2_Train_Word2Vec.ipynb)
 This [Notebook](2_Train_Word2Vec.ipynb) covers how you can train, evaluate and visualize word embeddings using **[Word2Vec](https://arxiv.org/pdf/1301.3781.pdf)** implementaion from **[MLLib](https://spark.apache.org/docs/latest/mllib-feature-extraction.html#word2vec)** 
 in **Spark**. The MLLib function for word2vec is based on a continuos skip-gram model that tries to predict the context words given a word. To optimse the performance this implementation uses hierarchical softmax. H-SoftMax 
 essentially replaces the flat SoftMax layer with a hierarchical layer that has the words as leaves. This allows us to decompose calculating the probability of one word into a sequence of probability calculations, 
