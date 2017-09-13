@@ -1,0 +1,14 @@
+type: "local"
+
+# Specifies the user-managed python environment for the run. By default this
+# is "python" which uses the currently active python environment. The Vienna
+# application will use the Vienna python environment and the AzureML CLI will
+# use whatever python environment it was installed into.
+#
+# You can change this to point at any python environment on your system,
+# including virtual environments and Conda environments.
+pythonLocation: "python"
+
+sparkSubmitLocation: "spark-submit"
+
+nativeSharedDirectory: "~/.azureml/share/"

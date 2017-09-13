@@ -1,0 +1,11 @@
+{
+  "ArgumentVector":[
+    "$file"
+  ],
+  "Framework":"PySpark",
+  "CondaFile":null,
+  "ManagedEnvironment":true,
+  "TrackedRun":true,
+  "Target":"docker",
+  "PrepareEnvironment":true
+}

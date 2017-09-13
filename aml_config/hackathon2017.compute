@@ -1,0 +1,4 @@
+address: hackathon2017-ssh.azurehdinsight.net
+password: AzureMlSecret=hackathon2017#sshuser#efdc67f4149b453eaf238cd8720588eb
+type: cluster
+username: sshuser

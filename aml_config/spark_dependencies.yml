@@ -1,0 +1,19 @@
+# Spark configuration and packages specification. The dependencies defined in
+# this file will be automatically provisioned for each run that uses Spark.
+
+# Spark configuration values can be set through the configuration dictionary.
+# Spark packages can be added through the repositories and packages lists.
+
+# For third-party python libraries, see conda_dependencies.yml.
+
+configuration:
+  "spark.app.name": "AzureML Experiment"
+repositories:
+  - "https://mmlspark.azureedge.net/maven"
+packages:
+  - group: "com.microsoft.ml.spark"
+    artifact: "mmlspark_2.11"
+    version: "0.7"
+  - group: "com.microsoft.sqlserver"
+    artifact: "mssql-jdbc"
+    version: "6.2.1.jre8"

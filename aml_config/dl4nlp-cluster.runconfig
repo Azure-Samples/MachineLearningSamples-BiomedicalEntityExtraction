@@ -1,0 +1,1 @@
+{"Framework": "PySpark", "PrepareEnvironment": true, "Target": "dl4nlp-cluster", "CondaDependenciesFile": null, "ArgumentVector": ["$file"], "SparkDependenciesFile": null, "TrackedRun": true}

@@ -1,0 +1,9 @@
+type: "localdocker"
+baseDockerImage: "microsoft/mmlspark:0.7"
+
+# Enabling Docker shared volumes will increase increase execution performance,
+# and enable automatic mounting of the shared directory, but the shared volume
+# feature of Docker isn't stable on Windows yet.
+sharedVolumes: false
+
+nativeSharedDirectory: "~/.azureml/share/"
