@@ -16,14 +16,14 @@ We provide summary documentation here about the sample. More extensive documenta
 ## Prerequisites
 
 ### Azure subscription and Hardware
-1. An Azure [subscription](https://azure.microsoft.com/en-us/free/)
+1. An Azure [subscription](https://azure.microsoft.com/en-us/free/)(free trials are available)
 2. [HDInsight Spark Cluster](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-apache-spark-jupyter-spark-sql) version Spark 2.1 on Linux (HDI 3.6). To process the full amount of MEDLINE abstracts discussed below, you need the minimum configuration of: 
 * Head node: [D13_V2](https://azure.microsoft.com/en-us/pricing/details/hdinsight/) size
 * Worker nodes: At least 4 of [D12_V2](https://azure.microsoft.com/en-us/pricing/details/hdinsight/). In our work, we used 11 worker nodes of D12_V2 size.
 3. [NC6 Data Science Virtual Machine (DSVM)](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro) on Azure.
 
 ### Software
-1. Azure Machine Learning Workbench. See [installation guide](quick-start-installation.md).
+1. An installed copy of [Azure Machine Learning Workbench](./overview-what-is-azure-ml.md) following the [quick start installation guide](./quick-start-installation.md) to install the program and create a workspace.
 2. [TensorFlow](https://www.tensorflow.org/install/)
 3. [CNTK 2.0](https://docs.microsoft.com/en-us/cognitive-toolkit/using-cntk-with-keras)
 4. [Keras](https://keras.io/#installation)
@@ -225,7 +225,7 @@ We also compare the performance of Tensorflow vs CNTK and see that CNTK performs
 We  deployed a web-service on a cluster in the [Azure Container Service (ACS)](https://azure.microsoft.com/en-us/services/container-service/). The operationalization environment provisions Docker and Kubernetes in the cluster to manage the web-service deployment. You can find further information on the operationalization process [here](model-management-service-deploy.md ).
 
 
-## Conclusion & Next Steps
+## Conclusion
 
 In this report, we went over the details of how you could train a Word Embedding Model using Word2Vec on Spark and then use the Embeddings obtained for training a Neural Network for Entity Extraction. We have shown the pipeline for Bio-Medical domain but the pipeline is generic. You just need enough data and you can easily adapt the workflow presented here for a different domain.
 
