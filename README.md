@@ -1,8 +1,6 @@
 # Biomedical Entity Recognition from MEDLINE Abstracts using Deep Learning
 
-
-## Link of the Gallery GitHub repository
-Following is the link to the public GitHub repository: 
+Link to the public GitHub repository:
 
 [https://github.com/Azure/MachineLearningSamples-BiomedicalEntityExtraction](https://github.com/Azure/MachineLearningSamples-BiomedicalEntityExtraction)
 
