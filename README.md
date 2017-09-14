@@ -232,7 +232,3 @@ In this report, we went over the details of how you could train a Word Embedding
 ## Contact
 
 Feel free to contact Mohamed Abdel-Hady (mohamed.abdel-hady@microsof.com) Debraj GuhaThakurta (debraj.guhathakurta@microsoft.com) with any question or comments.
-
-## Disclaimer
-
-To be added.
