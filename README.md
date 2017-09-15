@@ -33,9 +33,11 @@ We provide summary documentation here about the sample. More extensive documenta
 ### Use Case Overview
 Medical Named Entity Recognition (NER) is a critical step for complex biomedical Natural Language Processing (NLP) tasks such as: 
 * Extraction of diseases and symptoms from electronic medical or health records.
-* Understanding the interactions between different entity types like drugs and diseases for the purpose of pharmacovigilence. SHOULD YOU EXPLAIN PHARMACOVIGILENCE?
+* Understanding the interactions between different entity types like drugs and diseases for the purpose of pharmacovigilence.
 
-Our study focuses on how a large amount of unstructured biomedical data available from MEDLINE abstracts can be utilized for training a Neural Entity Extractor for biomedical NER. 
+Our study focuses on how a large amount of unstructured biomedical data available from MEDLINE abstracts can be utilized for training a Neural Entity Extractor for biomedical NER.
+
+**AT** PERHAPS HERE YOU COULD GIVE AN EXAMPLE OF A SENTENCE FROM THE BIOMEDICAL DOMAIN AND "TAG" IT FOR NAMED-ENTITIES 
 
  The project highlights several features of Azure Machine Learning Workbench, such as:
  1. Instantiation of the [Team Data Science Process (TDSP) structure and templates](how-to-use-tdsp-in-azure-ml.md )
@@ -47,7 +49,7 @@ Our study focuses on how a large amount of unstructured biomedical data availabl
 
 ### Purpose of the Project
 The objectives of the sample are: 
-1. Show how to systematically train a Word Embeddings Model using nearly 15 million MEDLINE abstracts using [Word2Vec on Spark](https://spark.apache.org/docs/latest/mllib-feature-extraction.html#word2vec). These word embeddings are then used to build an LSTM-based deep neural network for Entity Extraction on a GPU enabled VM on Azure.
+1. Show how to systematically train a word embeddings model using nearly 15 million MEDLINE abstracts using [Word2Vec on Spark](https://spark.apache.org/docs/latest/mllib-feature-extraction.html#word2vec). These word embeddings are then used to build an LSTM-based deep neural network for Entity Extraction on a GPU enabled VM on Azure.
 2. Demonstrate that domain-specific data can enhance accuracy of NER compared to generic data, such as Google News, which are often used for such tasks.
 3. Demonstrate an end-to-end workflow of how to train and operationalize deep learning models on large amounts of text data using Azure Machine Learning Workbench and multiple compute contexts (Spark, GPU VMs).
 4. Demonstrate the capabilities of Azure Machine Learning Workbench **AT** REMOVED REPETITION
@@ -151,7 +153,7 @@ Traditional neural network models suffer from a problem in that they treat each 
 
 ![RNN](./Images/rnn-expanded.png)
 
-Vanilla RNNs actually suffer from the [Vanishing Gradient Problem](https://en.wikipedia.org/wiki/Vanishing_gradient_problem) in which they are not able to utilize all the information they have seen before. The problem becomes evident only when a large amount of context is required to make a prediction. But models like LSTM do not suffer from such a problem, in fact they are designed to remember long-term dependencies. Unlike vanilla RNNs that have a single neural network, the LSTMs have the interactions between four neural networks for each cell. Refer to this [excellent post](http://colah.github.io/posts/2015-08-Understanding-LSTMs/) for a detailed explanation of how LSTM work.
+Vanilla RNNs suffer from the [Vanishing Gradient Problem](https://en.wikipedia.org/wiki/Vanishing_gradient_problem) in which they are not able to utilize all the information they have seen before. The problem becomes evident only when a large amount of context is required to make a prediction. But models like LSTM do not suffer from such a problem, in fact they are designed to remember long-term dependencies. Unlike vanilla RNNs that have a single neural network, the LSTMs have the interactions between four neural networks for each cell. Refer to this [excellent post](http://colah.github.io/posts/2015-08-Understanding-LSTMs/) for a detailed explanation of how LSTM work.
 
 ![LSTM Cell](./Images/lstm-cell.png) **AT** IMAGE NOT SHOWING
 

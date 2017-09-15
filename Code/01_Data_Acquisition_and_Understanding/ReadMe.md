@@ -32,6 +32,6 @@ You can install other dependencies in a similar way
 
         #!/usr/bin/env bash
         /usr/bin/anaconda/bin/conda install unidecode
-        
-- The egg file needed to run the Pubmed Parser is also included in the repository.
+
+- The egg file needed to run the Pubmed Parser is also included in the repository. **AT** I DO NOT SEE THIS .EGG FILE IN THE REPO
 
