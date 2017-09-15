@@ -199,4 +199,4 @@ In this sample, we demonstrated how to train a word embedding model using Word2V
 
 ## Contact
 
-Feel free to contact Mohamed Abdel-Hady (mohamed.abdel-hady@microsof.com) Debraj GuhaThakurta (debraj.guhathakurta@microsoft.com) with any question or comments.
+Feel free to contact Mohamed Abdel-Hady (mohamed.abdel-hady@microsoft.com) Debraj GuhaThakurta (debraj.guhathakurta@microsoft.com) with any question or comments.
