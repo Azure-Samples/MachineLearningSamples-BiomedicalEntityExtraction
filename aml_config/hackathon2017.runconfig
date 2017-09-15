@@ -1,1 +1,0 @@
-{"SparkDependenciesFile": null, "Target": "hackathon2017", "Framework": "PySpark", "PrepareEnvironment": true, "TrackedRun": true, "CondaDependenciesFile": null, "ArgumentVector": ["$file"]}
