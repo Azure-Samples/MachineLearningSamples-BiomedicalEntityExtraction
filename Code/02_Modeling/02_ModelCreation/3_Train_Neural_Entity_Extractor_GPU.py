@@ -147,13 +147,13 @@ if __name__ == "__main__":
     storage_container_name ='dl4nlp-container'    
     
     window_size = 5
-    vector_size = 50
+    embed_vector_size = 50
     min_count =400
     #download_embedding_parquet_files_from_storage()
     #embedding_pickle_file = save_embeddings_to_pickle_file()
     
     embedding_pickle_file = os.path.join(home_dir, "Models/w2vmodel_pubmed_vs_{}_ws_{}_mc_{}.pkl" \
-            .format(vector_size, window_size, min_count))
+            .format(embed_vector_size, window_size, min_count))
 
     # Read the data
     #local_train_file_path, local_test_file_path = download_data_from_storage()
@@ -164,22 +164,23 @@ if __name__ == "__main__":
     tag_to_idx_map_file = os.path.join(home_dir, "Models/", "tag_map.tsv")
 
     # Train the model        
-    network_type= 'unidirectional'
-    # network_type= 'bidirectional'
-    vector_size = 50
+    #network_type= 'unidirectional'
+    network_type= 'bidirectional'
+    #embed_vector_size = 50
     num_classes = 7 + 1
     max_seq_length = 613
-    num_layers = 1
-    num_epochs = 1
+    num_layers = 2
+    num_hidden_units = 300
+    num_epochs = 10
     
     print("Initializing data...")                  
 
-    model_file_path = os.path.join(home_dir,'Models/lstm_{}_model_lyrs_{}_epchs_{}_vs_{}_ws_{}_mc_{}.h5'.\
-                  format(network_type, num_layers, num_epochs, vector_size, window_size, min_count))
+    model_file_path = os.path.join(home_dir,'Models','lstm_{}_model_units_{}_lyrs_{}_epchs_{}_vs_{}_ws_{}_mc_{}.h5'.\
+                  format(network_type, num_hidden_units, num_layers,  num_epochs, embed_vector_size, window_size, min_count))
     
     #mode = 'train'
-    #mode = 'evaluate'
-    mode = 'score'
+    mode = 'evaluate'
+    #mode = 'score'
     K.clear_session()
     with K.get_session() as sess:        
         K.set_session(sess)
@@ -187,10 +188,11 @@ if __name__ == "__main__":
         with graphr.as_default():                        
 
             if mode == 'train':
-                print("Training the model... num_epochs = {0}, num_layers = {1}".format(num_epochs, num_layers))
-                reader = DataReader(num_classes, vector_size =vector_size) 
+                print("Training the model... num_epochs = {}, num_layers = {}".format(num_epochs, num_layers))
+
+                reader = DataReader(num_classes, vector_size =embed_vector_size) 
                 entityExtractor = EntityExtractor(reader, embedding_pickle_file)
-                entityExtractor.train(local_train_file_path, network_type = 'unidirectional', num_epochs=num_epochs, num_layers=num_layers)    
+                entityExtractor.train(local_train_file_path, network_type = network_type, num_epochs=num_epochs, num_hidden_units = num_hidden_units, num_layers=num_layers)    
                 entityExtractor.save_tag_map(tag_to_idx_map_file)
 
                 #Save the model
@@ -199,11 +201,11 @@ if __name__ == "__main__":
                 # Evaluate the model
                 print("Evaluating the model...")
 
-                reader = DataReader(num_classes, max_seq_length=max_seq_length, tag_to_idx_map_file=tag_to_idx_map_file, vector_size =vector_size)   
+                reader = DataReader(num_classes, max_seq_length=max_seq_length, tag_to_idx_map_file=tag_to_idx_map_file, vector_size=embed_vector_size)   
                 entityExtractor = EntityExtractor(reader, embedding_pickle_file)
 
                 #load the model
-                print("Loading the model...")
+                print("Loading the model from file {} ...".format(model_file_path))
                 entityExtractor.load(model_file_path)
                 entityExtractor.print_summary()                
                 
@@ -212,18 +214,19 @@ if __name__ == "__main__":
             elif mode == 'score':
                 print("Starting the model prediction ...")
 
-                reader = DataReader(num_classes, max_seq_length=max_seq_length, tag_to_idx_map_file=tag_to_idx_map_file, vector_size =vector_size) 
+                reader = DataReader(num_classes, max_seq_length=max_seq_length, tag_to_idx_map_file=tag_to_idx_map_file, vector_size=embed_vector_size) 
                 entityExtractor = EntityExtractor(reader, embedding_pickle_file)
                 
                  #load the model
+                print("Loading the model from file {} ...".format(model_file_path))
                 entityExtractor.load(model_file_path)
                 entityExtractor.print_summary()     
 
-                predicted_tags = entityExtractor.score_model(local_data_file_path)
+                predicted_tags = entityExtractor.predict_2(local_data_file_path)
                 if not os.path.exists("C:\dl4nlp\output"):
                     os.makedirs("C:\dl4nlp\output")
 
-                with open('C:\dl4nlp\output\prediction.out') as f:
+                with open('C:\dl4nlp\output\prediction.out', 'w') as f:
                     for ind, line in enumerate(predicted_tags):
                         f.write("{}\t{}\n".format(ind,line))
 

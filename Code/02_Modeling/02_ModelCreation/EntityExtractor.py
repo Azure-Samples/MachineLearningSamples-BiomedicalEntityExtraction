@@ -1,6 +1,6 @@
 # %%writefile Entity_Extractor.py
 from keras.preprocessing import sequence
-from keras.models import load_model
+from keras.models import load_model,save_model
 from keras.models import Sequential
 from keras.layers import Dense, Input
 from keras.layers import LSTM
@@ -52,7 +52,7 @@ class EntityExtractor:
         self.model = load_model(filepath)
         
     def save (self, filepath):
-        self.model.save(filepath)
+        save_model(self.model, filepath, overwrite = True, include_optimizer = True)
 
     def print_summary (self):
         print(self.model.summary())        
@@ -78,18 +78,9 @@ class EntityExtractor:
         self.model = Sequential()        
         self.model.add(Embedding(self.wordvecs.shape[0], self.wordvecs.shape[1], \
                                  input_length = train_X.shape[1], \
-                                 weights = [self.wordvecs], trainable = False))
-        
-        if network_type == 'unidirectional':
-            # uni-directional LSTM
-            self.model.add(LSTM(num_hidden_units, return_sequences = True))
-        else:
-            # bi-directional LSTM
-            self.model.add(Bidirectional(LSTM(num_hidden_units, return_sequences = True)))
-        
-        self.model.add(Dropout(dropout))
+                                 weights = [self.wordvecs], trainable = False))                
 
-        for i in range(1, num_layers):
+        for i in range(0, num_layers):
             if network_type == 'unidirectional':
                 # uni-directional LSTM
                 self.model.add(LSTM(num_hidden_units, return_sequences = True))
@@ -106,12 +97,35 @@ class EntityExtractor:
 
         self.model.fit(train_X, train_Y, epochs = num_epochs, batch_size = batch_size)
                 
-              
-    def score_model(self, data_file):
+    def predict(self, data_frame):
         import json
         from collections import OrderedDict as odict
 
-        feat_vector_list, word_seq_list, num_tokens_list = self.reader.read_and_parse_unlabeled_data(data_file)
+        feat_vector_list, word_seq_list, num_tokens_list = self.reader.preprocess_unlabeled_data(data_frame)
+        print("Data Shape: ")        
+        print(feat_vector_list.shape)
+        # the output is a list of JSON strings
+        predicted_tags= []
+        ind = 0
+        for feat_vector, word_seq, num_tokens in zip(feat_vector_list, word_seq_list, num_tokens_list):
+            prob_dist = self.model.predict(np.array([feat_vector]), batch_size=1)[0]
+            pred_tags = self.reader.decode_prediction_sequence(prob_dist)
+            pred_dict = odict(zip(word_seq[-num_tokens:], pred_tags[-num_tokens:]))
+            pred_str = json.dumps(pred_dict) 
+            predicted_tags.append(pred_str)
+            ind += 1
+            ### To see Progress ###
+            if ind % 100 == 0: 
+                print("Tagging {} sentences".format(ind))
+        
+        #predicted_tags = np.array(predicted_tags)
+        return predicted_tags
+    
+    def predict_1(self, data_list):
+        import json
+        from collections import OrderedDict as odict
+
+        feat_vector_list, word_seq_list, num_tokens_list = self.reader.preprocess_unlabeled_data_1(data_list)
         print("Data Shape: ")        
         print(feat_vector_list.shape)
         # the output is a list of JSON strings
@@ -126,36 +140,61 @@ class EntityExtractor:
             ind += 1
             ### To see Progress ###
             if ind % 500 == 0: 
-                print("Sentence" + str(ind))
+               print("Tagging {} sentences".format(ind))
+        
+        #predicted_tags = np.array(predicted_tags)
+        return predicted_tags
+
+    def predict_2(self, data_file):
+        import json
+        from collections import OrderedDict as odict
+
+        feat_vector_list, word_seq_list, num_tokens_list = self.reader.preprocess_unlabeled_data_2(data_file)
+        print("Data Shape: ")        
+        print(feat_vector_list.shape)
+        # the output is a list of JSON strings
+        predicted_tags= []
+        ind = 0
+        for feat_vector, word_seq, num_tokens in zip(feat_vector_list, word_seq_list, num_tokens_list):
+            prob_dist = self.model.predict(np.array([feat_vector]), batch_size=1)[0]
+            pred_tags = self.reader.decode_prediction_sequence(prob_dist)
+            pred_dict = odict(zip(word_seq[-num_tokens:], pred_tags[-num_tokens:]))
+            pred_str = json.dumps(pred_dict) 
+            predicted_tags.append(pred_str)
+            ind += 1
+            ### To see Progress ###
+            if ind % 500 == 0: 
+               print("Tagging {} sentences".format(ind))
         
         #predicted_tags = np.array(predicted_tags)
         return predicted_tags
     
     def evaluate_model(self, test_file):
-        target = open("Pubmed_Output.txt", 'w')
-        
+               
         test_X, test_Y = self.reader.read_and_parse_test_data(test_file)
         
         print("Data Shape: ")        
         print(test_X.shape)
         print(test_Y.shape)
         
+        f = open("Pubmed_Output.txt", 'w')
         predicted_tags= []
-        test_data_tags = []
+        target_tags = []
         ind = 0
         for x,y in zip(test_X, test_Y):
             tags = self.model.predict(np.array([x]), batch_size=1)[0]
             pred_tags = self.reader.decode_prediction_sequence(tags)
-            test_tags = self.reader.decode_prediction_sequence(y)
+            target_tags = self.reader.decode_prediction_sequence(y)
             ind += 1
             ### To see Progress ###
             if ind%500 == 0: 
                 print("Sentence" + str(ind))
 
             pred_tag_wo_none = []
-            test_tags_wo_none = []
+            target_tags_wo_none = []
             
-            for index, test_tag in enumerate(test_tags):
+            
+            for index, test_tag in enumerate(target_tags):
                 if test_tag != "NONE":
                     if pred_tags[index] == "B-Chemical":
                         pred_tag_wo_none.append("B-Drug")
@@ -167,30 +206,28 @@ class EntityExtractor:
                         pred_tag_wo_none.append(pred_tags[index])
                         
                     if test_tag == "B-Chemical":
-                        test_tags_wo_none.append("B-Drug")
+                        target_tags_wo_none.append("B-Drug")
                     elif test_tag == "I-Chemical":
-                        test_tags_wo_none.append("I-Drug")
+                        target_tags_wo_none.append("I-Drug")
                     else:                        
-                        test_tags_wo_none.append(test_tag)
+                        target_tags_wo_none.append(test_tag)
+
             
-            for wo in pred_tag_wo_none:
-                target.write(str(wo))
-                target.write("\n")
-            target.write("\n")
+                for target_tag,predicted_tag in zip(target_tags_wo_none, pred_tag_wo_none):
+                    f.write(str(target_tag) + '\t' + str(predicted_tag) + '\n')                                    
             
-            for i,j in zip(pred_tags, test_tags):
+
+            for i,j in zip(pred_tags, target_tags):
                 if i != "NONE" and j != "NONE":
-                    test_data_tags.append(j)
-                    predicted_tags.append(i)
-
-        target.close()
-        
+                    target_tags.append(j)
+                    predicted_tags.append(i)       
+        f.close
         predicted_tags = np.array(predicted_tags)
-        test_data_tags = np.array(test_data_tags)
-        print(classification_report(test_data_tags, predicted_tags))
+        target_tags = np.array(target_tags)
+        print(classification_report(target_tags, predicted_tags))
 
-        simple_conf_matrix = confusion_matrix(test_data_tags,predicted_tags)
-        all_tags = sorted(list(set(test_data_tags)))
+        simple_conf_matrix = confusion_matrix(target_tags, predicted_tags)
+        all_tags = sorted(list(set(target_tags)))
         conf_matrix = pd.DataFrame(columns = all_tags, index = all_tags)
         for x,y in zip(simple_conf_matrix, all_tags):
             conf_matrix[y] = x

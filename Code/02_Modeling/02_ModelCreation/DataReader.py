@@ -47,7 +47,7 @@ class DataReader:
 #         self.all_Y_train = []
 #         self.all_X_test = []
 #         self.all_Y_test = []
-        self.unk_words = []        
+        #self.unk_words = []        
         
 #         self.read_and_parse_data(train_file, test_file, embeddings_file)
             
@@ -157,7 +157,7 @@ class DataReader:
          ############## Create Train Vectors################
         all_X_train, all_Y_train = [], []
         
-        self.unk_words = []
+        unk_words = []
         count = 0
         for word_seq, tag_seq in raw_data_train:  
             
@@ -196,9 +196,9 @@ class DataReader:
         all_X_train = np.array(all_X_train)
         all_Y_train = np.array(all_Y_train)
         
-        print("UNK WORD COUNT = " + str(len(self.unk_words)))
+        print("UNK WORD COUNT = " + str(len(unk_words)))
         print("Found WORDS COUNT = " + str(count))
-        print("TOTAL WORDS = " + str(count+len(self.unk_words)))    
+        print("TOTAL WORDS = " + str(count+len(unk_words)))    
         
         print("Done")
         
@@ -254,9 +254,9 @@ class DataReader:
 #         self.max_sentence_len = max(self.max_sentence_len_train, self.max_sentence_len_test)               
         
         ########################Create TEST Feature Vectors##########################
-        self.all_X_test, self.all_Y_test = [], []
+        all_X_test, all_Y_test = [], []
 
-        self.unk_words = []
+        unk_words = []
         count = 0
         for word_seq, tag_seq in raw_data_test:  
             
@@ -276,12 +276,12 @@ class DataReader:
                     elem_tags.append(self.tag_to_vector_map[t])
                     
                 elif "UNK" in self.word_to_ix_map :
-                    self.unk_words.append(w)
+                    unk_words.append(w)
                     elem_wordvecs.append(self.word_to_ix_map["UNK"])
                     elem_tags.append(self.tag_to_vector_map[t])
                     
                 else:
-                    self.unk_words.append(w)
+                    unk_words.append(w)
                     w = "UNK"
                     self.word_to_ix_map[w] = self.wordvecs.shape[0] - 1
                     elem_wordvecs.append(self.word_to_ix_map[w])
@@ -297,9 +297,9 @@ class DataReader:
         all_X_test = np.array(all_X_test)
         all_Y_test = np.array(all_Y_test)
         
-        print("UNK WORD COUNT = " + str(len(self.unk_words)))
+        print("UNK WORD COUNT = " + str(len(unk_words)))
         print("Found WORDS COUNT = " + str(count))
-        print("TOTAL WORDS = " + str(count+len(self.unk_words)))         
+        print("TOTAL WORDS = " + str(count+len(unk_words)))         
         
         print("Done")
         
@@ -307,48 +307,65 @@ class DataReader:
                                          
         
         
-    ##########################  READ UNLABELED DATA  ######################### 
-    def read_and_parse_unlabeled_data (self, data_file, skip_unknown_words = False):
+     ##########################
+     #  READ UNLABELED DATA  
+     ########################## 
+    def preprocess_unlabeled_data_2 (self, data_file, skip_unknown_words = False):
         import nltk
 
         print("Loading unlabeled data from file {}".format(data_file))
-        with open(data_file, 'r') as f_data:
-            
-            self.n_tag_classes = self.DEFAULT_N_CLASSES
-            
+        with open(data_file, 'r') as f_data:                                    
             all_sentences_words = []
-            sentence_words = []
-#             raw_tags_test = []        
+            sentence_words = []      
 
             # Process all lines in the file
             for line in f_data:
                 line = line.strip()                
                 
-#                 word, tag = line.split('\t') 
-                #TODO: replace the tokenizer
+                #TODO: break the input text into sentences before tokenization
                 #words = line.split()                 
                 
-                sentence_words = nltk.word_tokenize(line)              
+                sentence_words = nltk.word_tokenize(line)             
                 
                 all_sentences_words.append( tuple(sentence_words) )               
                                     
         print("number of unlabeled examples = " + str(len(all_sentences_words)))
-        self.n_sentences_all = len(all_sentences_words)
+        self.n_sentences_all = len(all_sentences_words)        
+        return create_feature_vectors(all_sentences_words)
 
-        # Find the maximum sequence length for Test Data
-        #self.max_sentence_len_test = 0
-        #for seq in raw_data_test:
-        #    if len(seq[0]) > self.max_sentence_len_test:
-        #        self.max_sentence_len_test = len(seq[0])
+    ##########################
+    #  READ UNLABELED DATA  
+    ########################## 
+    def preprocess_unlabeled_data_1 (self, data_list, skip_unknown_words = False):
+        import nltk
+
+        print("Reading unlabeled data from dataframe")   
+        # list of list of tokens
+        all_sentences_words = []           
+
+        # Process all lines in the file
+        for line in data_list:
+            line = line.strip()                                
+
+            #TODO: break the input text into sentences before tokenization
+            #words = line.split()                 
                 
-#         #Find the maximum sequence length in both training and Testing dataset
-#         self.max_sentence_len = max(self.max_sentence_len_train, self.max_sentence_len_test)               
-        
-        ########################Create UNLABELED DATA Feature Vectors##########################
+            sentence_words = nltk.word_tokenize(line)              
+                
+            all_sentences_words.append( tuple(sentence_words) )               
+                                    
+        print("number of unlabeled examples = " + str(len(all_sentences_words)))
+        self.n_sentences_all = len(all_sentences_words)        
+        return self.create_feature_vectors(all_sentences_words)
+
+    ########################## 
+    #   Create Feature Vectors
+    ########################## 
+    def create_feature_vectors(self, all_sentences_words):
         all_X_data = []
         word_seq_list = []
         num_tokens_list = []
-        self.unk_words = []
+        unk_words = []
         count = 0
 
         for word_seq in all_sentences_words:  
@@ -368,11 +385,11 @@ class DataReader:
                     elem_wordvecs.append(self.word_to_ix_map[w])                
                     
                 elif "UNK" in self.word_to_ix_map :
-                    self.unk_words.append(w)
+                    unk_words.append(w)
                     elem_wordvecs.append(self.word_to_ix_map["UNK"])                    
                     
                 else:
-                    self.unk_words.append(w)
+                    unk_words.append(w)
                     w = "UNK"
                     self.word_to_ix_map[w] = self.wordvecs.shape[0] - 1
                     elem_wordvecs.append(self.word_to_ix_map[w])                    
@@ -385,9 +402,9 @@ class DataReader:
 
         all_X_data = np.array(all_X_data)        
         
-        print("UNK WORD COUNT = " + str(len(self.unk_words)))
+        print("UNK WORD COUNT = " + str(len(unk_words)))
         print("Found WORDS COUNT = " + str(count))
-        print("TOTAL WORDS = " + str(count+len(self.unk_words)))         
+        print("TOTAL WORDS = " + str(count+len(unk_words)))         
         
         print("Done")
         

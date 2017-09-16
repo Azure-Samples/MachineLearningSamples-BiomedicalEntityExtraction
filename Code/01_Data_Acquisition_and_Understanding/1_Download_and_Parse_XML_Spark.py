@@ -38,21 +38,6 @@
 # <br>/usr/bin/anaconda/bin/conda install unidecode</b>
 #
 
-# <b> Function to save files with text separated by the specified delimiter
-# </b>
-
-# def saveDfToCsv(df, ): 
-#     tsvOutputDir = 'wasb:///medline_baseline/batch%04d' % i 
-#     sep = "\t" 
-#     includeHeader = "true"
-#     df.repartition(1).write.       
-#      format("com.databricks.spark.csv").        
-#      option("header", includeHeader).       
-#      option("delimiter", sep).   
-#      save(tsvOutputDir,  mode='overwrite')
-
-#home_dir = os.getcwd()
-#medline_dir = os.path.join(home_dir, 'ftp.nlm.nih.gov', 'nlmdata','.medleasebaseline','gz')
 
 #Change 813 to a smaller number if you want to test.  Downloading and Parsing 1
 #file takes ~25-30 seconds.

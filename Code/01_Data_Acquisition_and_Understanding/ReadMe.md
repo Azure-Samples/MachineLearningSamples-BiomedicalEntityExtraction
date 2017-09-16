@@ -1,31 +1,22 @@
-## **Data Preparation**
-This section describes how to download the [MEDLINE](https://www.nlm.nih.gov/pubs/factsheets/medline.html) abstracts from the Website using **Spark**. We are using HDInsight Spark 2.1 on Linux (HDI 3.6).
-The FTP server for Medline has about 812 XML files where each file contains about 30000 abstracts. Below you can see the fields present in the XML files. We are currently using the Abstracts extracted from 
-the XML files to train the word embedding model
+### 1. [Data Acquisition and Understanding](https://github.com/Azure/MachineLearningSamples-BiomedicalEntityExtraction/blob/master/Code/01_Data_Acquisition_and_Understanding/ReadMe.md)
+
+The raw MEDLINE corpus has a total of 27 million abstracts where about 10 million articles have an empty abstract field. Azure HDInsight Spark is used to process big data that cannot be loaded into the memory of a single machine as a [Pandas DataFrame](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html). First, the data is downloaded into the Spark cluster. Then the following steps are executed on the [Spark DataFrame](https://spark.apache.org/docs/latest/sql-programming-guide.html): 
+* parse the XML files using Medline XML Parser
+* preprocess the abstract text including sentence splitting, tokenization and case normalization.
+* exclude articles where abstract field is empty or has short text 
+* create the word vocabulary from the training abstracts
+* train the word embedding neural model. For more details, refer to [GitHub code link](https://github.com/Azure/MachineLearningSamples-BiomedicalEntityExtraction/blob/master/Code/01_DataPreparation/ReadMe.md) to get started.
 
 
-### [Downloading and Parsing Medline Abstracts](1_Download_and_Parse_Medline_Abstracts.ipynb)
-The [Notebook]((1_Download_and_Parse_Medline_Abstracts.ipynb) describes how to download the local drive of the head node of the Spark cluster. Since the data is big (about 30 Gb), it might take a while to download. We parse the XML files as we download them. We are using a publicly available 
-[Pubmed Parser](https://github.com/titipata/pubmed_parser) to parse the downloaded XMLs and saving them in a tab separated file (TSV). The parsed XMLs are stored in a local folder on the head node (you can change this by specifying a different location in 
-the Notebook). The parse XML returns the following fields:
+After parsing XML files, data has the following format: 
 
-        abstract
-        affiliation
-        authors
-        country	
-        delete: boolean if False means paper got updated so you might have two XMLs for the same paper.
-        file_name	
-        issn_linking	
-        journal	
-        keywords	
-        medline_ta: this is abbreviation of the journal nam	
-        mesh_terms: list of MeSH terms	
-        nlm_unique_id	
-        other_id: Other IDs	
-        pmc: Pubmed Central ID	
-        pmid: Pubmed ID
-        pubdate: Publication date
-        title
+![Data Sample](./Images/datasample.png)
+
+Other datasets, which are being used for training and evaluation of the Neural Entity Extractor have been include in the corresponding folder. To obtain more information about them, you could refer to the following corpora:
+ * [Bio-Entity Recognition Task at BioNLP/NLPBA 2004](http://www.nactem.ac.uk/tsujii/GENIA/ERtask/report.html)
+ * [BioCreative V CDR task corpus](http://www.biocreative.org/tasks/biocreative-v/track-3-cdr/)
+ * [Semeval 2013 - Task 9.1 (Drug Recognition)](https://www.cs.york.ac.uk/semeval-2013/task9/)
+ 
 
 **Notes**:
 - There are more that 800 XML files that are present on the Medline ftp server. The code in the Notebook downloads them all. But you can change that in the last cell of the notebook (e.g. download only a subset by reducing the counter).

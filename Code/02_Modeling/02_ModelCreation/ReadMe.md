@@ -1,13 +1,12 @@
-## [Training a Neural Entity Detector using Pubmed Word Embeddings](3_Training_Neural_Entity_Extractor_Pubmed.ipynb)
-This [Notebook](3_Training_Neural_Entity_Extractor_Pubmed.ipynb) describes how you can use [Keras](https://keras.io/) with [Tensorflow](https://www.tensorflow.org/) backend to train a Deep Neural Network for Entity Recognition. We demonstrate how we can use the Word Embeddings generated previously to initialize the Embedding layer
-of the Deep Neural Network. The task at hand is to identity Drugs and Diseases from a given text. We are using an auto labeled dataset which is the combination of Semeval 2013 - Task 9.1 (Drug Recognition) and BioCreative V CDR task corpus.
+## [Training a Neural Entity Detector using Pubmed Word Embeddings](3_Train_Neural_Entity_Extractor_GPU.py)
+This [script](3_Train_Neural_Entity_Extractor_GPU.py) describes how you can use [Keras](https://keras.io/) with [Tensorflow](https://www.tensorflow.org/) backend to train a deep neural network for entity recognition. We demonstrate how we can use the Word Embeddings generated previously to initialize the embedding layer of the neural network. The task at hand is to identity drug and disease mentions in a given text. We are using an auto labeled dataset which is the combination of SemEval 2013 - Task 9.1 (Drug Recognition) and BioCreative V CDR task corpus.
 
 
-This Notebook uses a [Linux Data Science VM](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro) by Azure which has a single GPU, its [NC6](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/series/#n-series).
-Before, proceeding forward make sure you have the word embeddings model trained. You can refer to this [notebook](../01_FeatureEngineering/2_Train_Word2Vec.ipynb)
-to see how to train your own word embedding model for the Bio-Medical domain using Word2Vec on Spark.
+This Python script runs locally on an [NC6 Windows Data Science VM](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro) by Azure which has a single GPU, for more information about pricing, [click here](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/series/#n-series).
+Before, proceeding forward make sure you have the word embeddings model trained. You can refer to this [Python script](../01_FeatureEngineering/2_Train_Word2Vec_Model_Spark.py)
+to see how to train your own word embedding model for the biomedical domain using Word2Vec on Spark.
 
-Once you have the Embedding model ready you can start working on training the Neural Network for Entity Recognition.
+Once you have the embedding model ready you can start working on training the neural network for entity recognition.
 
 **Step 1**: Copy the dataset and evaluation scripts to correct locations and Read Word Embeddings from Parquet Files:
 We are using the [fastparquet package](https://pypi.python.org/pypi/fastparquet) as a way to read the embeddings from the parquet files and load them to a Pandas dataframe. You can then store this embedding matrix 
@@ -28,16 +27,9 @@ for more information about blob storage see [this](https://docs.microsoft.com/en
  We start by adding an [Embedding Layer](https://keras.io/layers/embeddings/) to our model and specify the input shape as created above. We load our pre-trained Embeddings for the weights of this layer and set the *trainable* flag as False since we do not want 
  to update the Embeddings (but this can change). Next we add a [Bi-Directional LSTM layer](https://keras.io/layers/wrappers/#bidirectional). We add a [dropout layer](https://keras.io/layers/core/#dropout). 
  We repeat the previous step once again. Finaly, we add a [TimeDistributed Dense Layer](https://keras.io/layers/wrappers/#timedistributed). This layer is responsible for generating predictions for each word in the sentence.
- Our model looks like this
+ The following figure demonstrate the trained model architecture.        
         
-        Embedding Layer
-        Bidirectional LSTM Layer    
-        Dropout Layer
-        BiDirectional LSTM Layer
-        Dropout Layer
-        TimeDistributed Dense Layer 
-
-![LSTM model](../../../Images/D_a_D_model.png)
+![LSTM model](../../../Images/d-a-d-model.png)
 
 We optimize the [categorical_crossentropy](https://keras.io/losses/#categorical_crossentropy) loss and are using the [Adam](https://keras.io/optimizers/#adam) optimizer.
 
@@ -64,7 +56,7 @@ following format
 
 Once we have the output in the above format we can use the SharedTaskEvaluation Script to obtain the recall, precision and F1-score for our Model.
 
-![Sample Evaluation](../../../Images/Evaluation_Sample.png)
+![Sample Evaluation](../../../Images/evaluation-sample.png)
 
 
 
