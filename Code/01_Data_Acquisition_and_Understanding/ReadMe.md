@@ -1,4 +1,4 @@
-### 1. [Data Acquisition and Understanding](https://github.com/Azure/MachineLearningSamples-BiomedicalEntityExtraction/blob/master/Code/01_Data_Acquisition_and_Understanding/ReadMe.md)
+### 1. Data Acquisition and Understanding
 
 The raw MEDLINE corpus has a total of 27 million abstracts where about 10 million articles have an empty abstract field. Azure HDInsight Spark is used to process big data that cannot be loaded into the memory of a single machine as a [Pandas DataFrame](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html). First, the data is downloaded into the Spark cluster. Then the following steps are executed on the [Spark DataFrame](https://spark.apache.org/docs/latest/sql-programming-guide.html): 
 * parse the XML files using Medline XML Parser
@@ -10,7 +10,7 @@ The raw MEDLINE corpus has a total of 27 million abstracts where about 10 millio
 
 After parsing XML files, data has the following format: 
 
-![Data Sample](./Images/datasample.png)
+![Data Sample](../../Images/datasample.png)
 
 Other datasets, which are being used for training and evaluation of the Neural Entity Extractor have been include in the corresponding folder. To obtain more information about them, you could refer to the following corpora:
  * [Bio-Entity Recognition Task at BioNLP/NLPBA 2004](http://www.nactem.ac.uk/tsujii/GENIA/ERtask/report.html)
@@ -27,3 +27,4 @@ You can install other dependencies in a similar way
         /usr/bin/anaconda/bin/conda install unidecode
 - The egg file needed to run the Pubmed Parser is also included in the repository.
 
+### Next Step

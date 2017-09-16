@@ -1,33 +1,44 @@
-## **Testing the Trained Entity Extractor Model against other models**
+#### 2.3. Model evaluation
+We use the evaluation script from the shared task [Bio-Entity Recognition Task at Bio NLP/NLPBA 2004](http://www.nactem.ac.uk/tsujii/GENIA/ERtask/report.html) to evaluate the precision, recall, and F1 score of the model. 
 
-- **Compare the performance of the model against an entity extractor trained on Google News Vectors**
+#### In-domain versus generic word embedding models
 
-Google News Vectors are trained on Google News Data. For each word they have a 300-Dimensional vector. These are available [online](https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit).  We wanted to compare the embeddings trained on a specific domain(Bio-Medical)
-against a model trained with embeddings from a general domain like News, to evaluate if a domain specific model achieves higher performance. Our results show that a domain specific model indeed achives 
-higher performance. The [Notebook](4_b_Test_Model_trained_on_Google_News_Embeddings.ipynb) shows the process of replicating that result.
+The following is a comparison between the accuracy of two feature types: (1) word embeddings trained on PubMed abstracts and (2) word embeddings trained on Google News. We clearly see that the in-domain model outperforms the generic model. Hence having a specific word embedding model rather than using a generic one is much more helpful. 
 
-- **Comparison between Uni-Directional LSTM trained with Pubmed Embeddings and Uni-Directional LSTM trained with Google Embeddings usige Keras with CNTK backend**
+* Task #1: Drugs and Diseases Detection
 
-The comparison between the performance of using a model with Pubmed Embedding against Google News embeddings with CNTK helped us to benchmark the performance of CNTK. The [Notebook 1](4_c_UniDirectional_LSTM_using_Pubmed_Embedding_with_CNTK_Backend.ipynb) 
-and [Notebook 2](4_d_UniDirectional_LSTM_using_Google_Embedding_with_CNTK_Backend.ipynb) demonstrates the procedure followed to implement a Uni-Directional LSTM Layer in Keras. The performance is reported in the notebooks and we see that Pubmed Embeddings out perform 
-the general embeddings. We are using the Bio-Creative 2 [Gene Mention Identification task](http://www.biocreative.org/tasks/biocreative-i/first-task-gm/) dataset here.
+![Model Comparison 1](../../../Images/mc1.png)
 
-Note: We are using Uni-directional LSTM layers since Keras with CNTK backend did not support "reverse" at the time this work was done.
-Install CNTK 2.0 for Keras from [here](https://docs.microsoft.com/en-us/cognitive-toolkit/using-cntk-with-keras)
+We perform the evaluation of the word embeddings on other datasets in the similar fashion and see that in-domain model is always better.
 
+* Task #2: Proteins, Cell Line, Cell Type, DNA and RNA Detection
 
-- **Comparison between Uni-Directional LSTM using CNTK and Tensorflow backends**
+![Model Comparison 2](../../../Images/mc2.png)
 
-Here we are comparing the perfomance of training a model with Pubmed Embeddings using Keras with CNTK and Tensorflow as the backends. The [Notebook 1](4_e_Pubmed_BC5_UniDirectional_LSTM_with_CNTK_Backend.ipynb) 
-and [Notebook 2](4_f_Pubmed_BC5_UniDirectional_LSTM_with_Tensorflow_Backend.ipynb) show the implementations and the results. We find that CNTK is faster than Tensorflow in terms of training time and both achieve 
-similar over all F1 Scores 61.66 on 5343 correctly identified entities for CNTK and 60.5 on 4973 correctly identified entities for Tensorflow. We are using the Bio Creative 5 
-[Disease and Chemical Identification task]( http://www.biocreative.org/tasks/biocreative-v/track-3-cdr/) dataset here.
+* Task #3: Chemicals and Diseases Detection
+
+![Model Comparison 3](../../../Images/mc3.png)
+
+* Task #4: Drugs Detection
+
+![Model Comparison 4](../../../Images/mc4.png)
+
+* Task #5: Genes Detection
+
+![Model Comparison 5](../../../Images/mc5.png)
+
+#### TensorFlow versus CNTK
+All the reported model are trained using Keras with TensorFlow as backend. Keras with CNTK backend does not support "reverse" at the time this work was done. Therefore, for the sake of comparison, we have trained a unidirectional LSTM model with the CNTK backend and compared it to a unidirectional LSTM model with TensorFlow backend. Install CNTK 2.0 for Keras from [here](https://docs.microsoft.com/en-us/cognitive-toolkit/using-cntk-with-keras). 
+
+![Model Comparison 6](../../../Images/mc6.png)
+
+We concluded that CNTK performs as good as Tensorflow both in terms of the training time taken per epoch (60 secs for CNTK and 75 secs for Tensorflow) and the number of test entities detected. We are using the Unidirectional layers for evaluation.
 
 Note:
 
 **Loading a pre-trained model for predictions**
 
-The [Notebook](4_a_Test_the_Trained_Neural_Entity_Extractor_Model.ipynb) shows how we can load a pre-trained neural entity extractor model (like the one trained in previous section). This will be useful if you want to reuse the model 
-for scoring at a later stage. The above notebook uses the call to load_model method by Keras. [These](https://keras.io/getting-started/faq/#how-can-i-save-a-keras-model) are some useful functionalities that Keras provides
-off the shelf for saving and loading your deep learning models.
+The [Python script](4_Test_Entity_Extractor_GPU.py) shows how to load a pre-trained neural entity extractor model (like the one trained in the previous step). This will be useful if you want to reuse the model 
+for scoring at a later stage. The script uses the Keras load_model method. For more information about the functionalities that Keras provides
+off-the-shelf for saving and loading deep learning models, [click here](https://keras.io/getting-started/faq/#how-can-i-save-a-keras-model) .
 
