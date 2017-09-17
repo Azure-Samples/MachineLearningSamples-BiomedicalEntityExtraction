@@ -100,11 +100,11 @@ For the scenario, we use the TDSP project structure and documentation templates 
 ![Fill in project information](./Images/instantiation-step3.jpg) 
 
 The step-by-step data science workflow is as follows:
-### 1. [Data Acquisition and Understanding](https://github.com/Azure/MachineLearningSamples-BiomedicalEntityExtraction/blob/master/Code/01_Data_Acquisition_and_Understanding/ReadMe.md)
+### 1. [Data Acquisition and Understanding](./Code/01_Data_Acquisition_and_Understanding/)
 ### 2. [Modeling](./Code/02_Modeling)
-#### 2.1. [Feature generation](./Code/02_Modeling/01_FeatureEngineering/ReadMe.md)
-#### 2.2. [Train the neural entity extractor](./Code/02_Modeling/02_ModelCreation/ReadMe.md)
-#### 2.3. [Model evaluation](./Code/02_Modeling/03_ModelEvaluation/ReadMe.md)
+#### 2.1. [Feature generation](./Code/02_Modeling/01_FeatureEngineering/)
+#### 2.2. [Train the neural entity extractor](./Code/02_Modeling/02_ModelCreation/)
+#### 2.3. [Model evaluation](./Code/02_Modeling/03_ModelEvaluation/)
 ### 3. [Deployment](./Code/03_Deployment)
 
 
