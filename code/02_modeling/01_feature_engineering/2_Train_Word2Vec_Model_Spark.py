@@ -436,105 +436,12 @@ model_file = "wasb:///Models/word2vec_pubmed_model_vs_{}_ws_{}_mc_{}_parquet_fil
 # print("Saving the model into binary format {}".format(model_file))
 df_1.repartition(1000).write.mode("overwrite").parquet(model_file, compression='gzip')
 
-model_file = "wasb:///Models/word2vec_pubmed_model_vs_{}_ws_{}_mc_{}_tsv_files".\
-    format(vector_size, window_size, min_count)
+# model_file = "wasb:///Models/word2vec_pubmed_model_vs_{}_ws_{}_mc_{}_tsv_files".\
+#     format(vector_size, window_size, min_count)
 
-print("Writing {} records to file {} .....".format(df_1.count(), model_file))        
-df_1.repartition(1000).write.\
-            format("com.databricks.spark.csv").\
-            option("header", "true").\
-            option("delimiter", "\t").\
-            save(model_file,  mode='overwrite')
-
-'''
-# ### Step 8
-
-# <b>Dimensionality Reduction for Visualization</b><br>
-# Note: For PCA or t-SNE we want the word Embeddings to be split into coloumns
-# of data frame.
-
-# In[23]:
-from pyspark.ml.feature import VectorAssembler
-assembler = VectorAssembler(inputCols=['col%d' % i for i in range(vector_size)],
-    outputCol="features")
-output = assembler.transform(df_1)
-
-
-# In[24]:
-output.printSchema()
-
-
-# <b>PCA</b>
-
-# In[25]:
-from pyspark.ml.feature import PCA
-pca = PCA(k=2, inputCol="features", outputCol="pca_vector")
-model_pca = pca.fit(output)
-
-transformed = model_pca.transform(output).select("word", "pca_vector")
-
-#REGISTER DF IN SQL-CONTEXT
-transformed.createOrReplaceTempView("pca")
-spark.sql("show tables").show()
-
-
-# In[26]:
-
-#Change the path to the location of test_words_dict_for visualization.txt
-words_visualization_file = "wasb:///data/test_words_dict_for visualization.txt"
-words_visualization = spark.read.csv(path = words_visualization_file, header=True, inferSchema=True, sep = "\n")
-words_visualization.printSchema()
-
-# REGISTER JOINED TRIP-FARE DF IN SQL-CONTEXT
-words_visualization.createOrReplaceTempView("visualization_dict")
-spark.sql("show tables").show()
-
-
-# In[27]:
-get_ipython().run_cell_magic(u'sql', u'-q -o visualize_vectors', u'select * from pca p\ninner join visualization_dict vd on p.word = vd.test_words')
-
-
-# In[35]:
-get_ipython().run_cell_magic(u'local', u'', u"%matplotlib inline\nimport numpy as np\nimport matplotlib.pyplot as plt\nfrom sklearn.manifold import TSNE\nprint(visualize_vectors.columns)\n\nall_words = np.array(visualize_vectors.word)\nall_vecs = np.array(visualize_vectors.pca_vector)\n\nnum_vectors = len(all_vecs)\nvector_size = len(all_vecs[0]['values'])\n\nprint(num_vectors, vector_size)\n\nall_vecs_new = []\n\nfor i in range(num_vectors):\n    all_vecs_new.append(all_vecs[i]['values'])\n    \nY = np.zeros(num_vectors)\nfor i in range(num_vectors):\n    X[i] = all_vecs_new[i][0]\n    Y[i] = all_vecs_new[i][1]\n\nwords = all_words\n\nprint(len(X), len(Y))\nprint(np.amin(X))\nfig, ax = plt.subplots(figsize=(15, 15))\nax.scatter(X, Y)\n\nxy_x = np.arange(np.amin(X), np.amax(X) + (np.amax(X) - np.amin(X))/5, (np.amax(X) - np.amin(X))/5)\nxy_y = np.arange(np.amin(Y), np.amax(Y) +(np.amax(Y) - np.amin(Y))/5, (np.amax(Y) - np.amin(Y))/5)\nplt.xticks(xy_x)\nplt.yticks(xy_y)\nfor i, word in enumerate(words):\n    ax.annotate(word, (X[i], Y[i]))")
-
-
-# ### Step 9
-
-# <b> For a better Visualization we use PCA + t-SNE</b>
-# <br> We first use PCA to reduce the dimensions to 45, then pick 15000 word
-# vectors and apply t-SNE on them.  We use the same word list for visualization
-# as used in PCA (above) to see the differences between the 2 visualizations
-
-# In[36]:
-from pyspark.ml.feature import PCA
-pca = PCA(k=45, inputCol="features", outputCol="pca_vector")
-model_pca = pca.fit(output)
-
-print(model_pca.explainedVariance)
-transformed = model_pca.transform(output).select("word", "pca_vector")
-
-#REGISTER DF IN SQL-CONTEXT
-transformed.createOrReplaceTempView("pca_tsne")
-spark.sql("show tables").show()
-
-
-# In[37]:
-get_ipython().run_cell_magic(u'sql', u'-q -m take -n 15000 -o visualize_vectors_tsne', u'select p.word, p.pca_vector from pca_tsne p inner join visualization_dict vd on p.word = vd.test_words\nunion all\nselect pc.word, pc.pca_vector from pca_tsne pc')
-
-
-# <b> Use t-SNE on 15000 words which include the words we plotted in PCA </b>
-# As you can see t-SNE in combination with PCA gives better visualization than
-# only PCA.  This is because PCA sufferes from a large information loss.
-
-# In[41]:
-get_ipython().run_cell_magic(u'local', u'', u"%matplotlib inline\nimport numpy as np\nimport matplotlib.pyplot as plt\nfrom sklearn.manifold import TSNE\n\nprint(visualize_vectors_tsne.columns)\ndict_words = np.array(visualize_vectors.word)\nall_words = np.array(visualize_vectors_tsne.word)\nall_vecs = np.array(visualize_vectors_tsne.pca_vector)\n\nnum_vectors = len(all_vecs)\nvector_size = len(all_vecs[0]['values'])\n\nprint(num_vectors, vector_size)\nall_vecs_new = []\nfor i in range(num_vectors):\n    all_vecs_new.append(all_vecs[i]['values'])\n    \nall_vecs_new = np.array(all_vecs_new)\ntsne = TSNE(n_components = 2, init='pca', random_state=0)\nall_vecs_new_TSNE = tsne.fit_transform(all_vecs_new, [num_vectors, vector_size])\n\nX = []\nY = []\nk = 0\nseen = []\nindex = []\nfor i in range(num_vectors):\n    for j in range(len(dict_words)):\n        if dict_words[j] not in seen and dict_words[j] == all_words[i]:\n            print(dict_words[j])\n            seen.append(dict_words[j])\n            X.append(all_vecs_new_TSNE[i][0])\n            Y.append(all_vecs_new_TSNE[i][1])\n            index.append(dict_words[j])\n            k+=1\nprint(k)\n\nX = np.array(X)\nY = np.array(Y)\nwords = np.array(index)\nprint(len(X), len(Y))\n\nfig, ax = plt.subplots(figsize=(15, 15))\nax.scatter(X, Y)\n\nxy_x = np.arange(np.amin(X), np.amax(X) + (np.amax(X) - np.amin(X))/5, (np.amax(X) - np.amin(X))/5)\nxy_y = np.arange(np.amin(Y), np.amax(Y) +(np.amax(Y) - np.amin(Y))/5, (np.amax(Y) - np.amin(Y))/5)\n\nplt.xticks(xy_x)\nplt.yticks(xy_y)\nfor i, word in enumerate(words):\n    ax.annotate(word, (X[i], Y[i])) ")
-
-
-# In[ ]:
-get_ipython().run_cell_magic(u'sql', u'-q -o sqlResultsPD', u'drop table word2vec')
-
-
-# In[ ]:
-get_ipython().run_cell_magic(u'sql', u'-q -o sqlResultsPD', u'drop table visualization_dict')
-
-'''
+# print("Writing {} records to file {} .....".format(df_1.count(), model_file))        
+# df_1.repartition(1000).write.\
+#             format("com.databricks.spark.csv").\
+#             option("header", "true").\
+#             option("delimiter", "\t").\
+#             save(model_file,  mode='overwrite')

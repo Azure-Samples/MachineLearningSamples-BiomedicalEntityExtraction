@@ -26,22 +26,7 @@
 # container associated with your spark cluster.
 # <br>
 #
-# #### Installing additional packages on Spark Nodes
-# To install additional packages you need to use script action from the azure
-# portal.  see <a href =
-# "https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-customize-cluster-linux">this</a>
-# <br>
-# Here's an example:
-# <br> To install unidecode, you can use script action (on your Spark Cluster)
-# <br>add the following lines to your script file (.sh)
-# <br><b>#!/usr/bin/env bash
-# <br>/usr/bin/anaconda/bin/conda install unidecode</b>
-#
 
-
-#Change 813 to a smaller number if you want to test.  Downloading and Parsing 1
-#file takes ~25-30 seconds.
-# saveDfToCsv(parse_results_df, tsvOutputDir, "\t", "true")
 
 import os
 from ftplib import FTP
@@ -59,6 +44,9 @@ import lxml
 import unidecode 
 import pubmed_parser as pp
 
+######################################################
+#   download_xml_gz_files()
+######################################################
 # <b>Download the files </b>
 # <b> Parse the XMLs and save them as a Tab separated File </b><br>
 # There are a total of 812 XML files.  It would take time for downloading that
@@ -107,6 +95,9 @@ def download_xml_gz_files():
         ftp.quit()
     print("Download MEDLINE xml files - end\n\n") 
 
+######################################################
+#   process_files()
+######################################################
 def process_files():
     """Process downloaded MEDLINE folder to parquet files"""
     print("Process downloaded MEDLINE XML files - start")
@@ -119,10 +110,7 @@ def process_files():
     if not os.path.exists(xml_local_dir):
         os.makedirs(xml_local_dir)
 
-    # remove if folder still exist
-    # if glob(os.path.join(parquet_medline_dir, 'medline_*.parquet')):
-    #     subprocess.call(['rm', '-rf', 'medline_*.parquet'])
-
+    
     if not os.path.isdir(xml_local_dir):
         print('The directory {} does not exist'.format(xml_local_dir))
   
@@ -174,11 +162,6 @@ def process_files():
 
     print("Process downloaded MEDLINE XML files - end")
 
-# conf = SparkConf().setAppName('1_Download_and_Parse_Medline_Abstracts')\
-#     .setMaster('local[8]')\
-#     .set('executor.memory', '8g')\
-#     .set('driver.memory', '8g')\
-#     .set('spark.driver.maxResultSize', '0')
 
 sc = SparkContext.getOrCreate()
 # sc = SparkContext(conf=conf)

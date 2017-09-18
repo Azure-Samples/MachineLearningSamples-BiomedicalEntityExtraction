@@ -11,11 +11,16 @@ dependencies:
   - python=3.5.2
   # ipykernel is required to use the remote/docker kernels in Jupyter Notebook.
   - ipykernel=4.6.1
+  - tensorflow-gpu==1.2.0
+  - nltk
+  - requests
+  - lxml
+  - unidecode
   - pip:
     # This is the operationalization API for Azure Machine Learning. Details:
     # https://github.com/Azure/Machine-Learning-Operationalization
     - azure-ml-api-sdk==0.1.0a6
-    - lxml
-    - unidecode
-    - requests
+	- h5py==2.7.0
     - matplotlib
+	- fastparquet
+	- keras

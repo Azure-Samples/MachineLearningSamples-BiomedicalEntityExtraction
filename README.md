@@ -13,6 +13,7 @@ The aim of this real-world scenario is to highlight how to use Azure Machine Lea
 4. Demonstrate the following capabilities within Azure Machine Learning Workbench:
 
     * Instantiation of [Team Data Science Process (TDSP) structure and templates](how-to-use-tdsp-in-azure-ml.md).
+    * Automated management of the download and the installation of your project dependencies
     * Execution of code in Jupyter notebooks as well as Python scripts.
     * Run history tracking for Python files.
     * Execution of jobs on remote Spark compute context using HDInsight Spark 2.1 clusters.
@@ -61,7 +62,7 @@ We first downloaded the raw MEDLINE abstract data from [MEDLINE](https://www.nlm
 The neural entity extraction model has been trained and evaluated on publiclly available datasets. To obtain a detailed description about these datasets, you could refer to the following sources:
  * [Bio-Entity Recognition Task at BioNLP/NLPBA 2004](http://www.nactem.ac.uk/tsujii/GENIA/ERtask/report.html)
  * [BioCreative V CDR task corpus](http://www.biocreative.org/tasks/biocreative-v/track-3-cdr/)
- * [Semeval 2013 - Task 9.1 (Drug Recognition)](https://www.cs.york.ac.uk/semeval-2013/task9/)
+ * [SemEval 2013 - Task 9.1 (Drug Recognition)](https://www.cs.york.ac.uk/semeval-2013/task9/)
 
 
 ## Prerequisites
@@ -72,10 +73,14 @@ The neural entity extraction model has been trained and evaluated on publiclly a
     * macOS Sierra (or newer)
 
 ### Azure services
-* [HDInsight Spark cluster](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-apache-spark-jupyter-spark-sql) version Spark 2.1 on Linux (HDI 3.6) for scale-out computation. To process the full amount of MEDLINE abstracts discussed below, you need the minimum configuration of: 
-    * Head node: [D13_V2](https://azure.microsoft.com/en-us/pricing/details/hdinsight/) size
-    * Worker nodes: At least 4 of [D12_V2](https://azure.microsoft.com/en-us/pricing/details/hdinsight/). In our work, we used 11 worker nodes of D12_V2 size.
-* [NC6 Data Science Virtual Machine (DSVM)](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro) for scale-up computation.
+* To run this scenario with Spark cluster, provision [Azure HDInsight Spark cluster](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-apache-spark-jupyter-spark-sql) (Spark 2.1 on Linux (HDI 3.6)) for scale-out computation. To process the full amount of MEDLINE abstracts discussed below, We recommend having a cluster with:
+    * a head node of type [D13_V2](https://azure.microsoft.com/en-us/pricing/details/hdinsight/) 
+    * at least four worker nodes of type [D12_V2](https://azure.microsoft.com/en-us/pricing/details/hdinsight/). 
+
+    * To maximize performance of the cluster, we recommend to change the parameters spark.executor.instances, spark.executor.cores, and spark.executor.memory by following the instructions [here](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-apache-spark-jupyter-spark-sql) and editing the definitions in "custom spark defaults" section. 
+
+* You can run the entity extraction model training locally on a [NC6 Data Science Virtual Machine (DSVM)](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro) 
+* To run scenario with remote docker, provision Ubuntu Data Science Virtual Machine (DSVM) by following the instructions [here](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-provision-vm). We recommend using [NC6 Data Science Virtual Machine (DSVM)](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro) for scale-up computation.
 
 ### Python packages
 
@@ -102,6 +107,74 @@ For the scenario, we use the TDSP project structure and documentation templates 
 
 ![Fill in project information](./docs/images/instantiation-3.png) 
 
+### Configuration of execution environments
+
+This project includes steps that run on two compute/execution environments: in Spark cluster and GPU-supported DS VM. We start with the description of the dependencies required both environments. 
+
+To install these packages in Docker image and in the nodes of Spark cluster, we modify conda_dependencies.yml file:
+
+    name: project_environment    
+    dependencies:
+    - python=3.5.2
+    # ipykernel is required to use the remote/docker kernels in Jupyter Notebook.
+    - ipykernel=4.6.1
+    - tensorflow-gpu==1.2.0
+    - nltk
+    - requests
+    - lxml
+    - unidecode
+    - pip:
+        # This is the operationalization API for Azure Machine Learning. Details:
+        # https://github.com/Azure/Machine-Learning-Operationalization
+        - azure-ml-api-sdk==0.1.0a6
+        - h5py==2.7.0
+        - matplotlib
+        - fastparquet
+        - keras
+    - azure-storage
+
+The modified conda\_dependencies.yml file is stored in aml_config directory of this project. 
+
+In the next steps, we connect execution environment to Azure account. Open command line window (CLI) by clicking File menu in the top left corner of AML Workbench and choosing "Open Command Prompt." Then run in CLI
+
+    az login
+
+You get a message
+
+    To sign in, use a web browser to open the page https://aka.ms/devicelogin and enter the code <code> to authenticate.
+
+Go to this web page, enter the code and sign into your Azure account. After this step, run in CLI
+
+    az account list -o table
+
+and find the subscription ID of Azure subscription that has your AML Workbench Workspace account. Finally, run in CLI
+
+    az account set -s <subscription ID>
+
+to complete the connection to your Azure subscription.
+
+In the next two sections we show how to complete configuration of remote docker and Spark cluster.
+
+#### Configuration of remote Docker container
+
+ To set up a remote Docker container, run in CLI
+
+    az ml computetarget attach --name dsvm --address <IP address> --username <username> --password <password> --type remotedocker
+
+with IP address, user name and password in DSVM. IP address of DSVM can be found in Overview section of your DSVM page in Azure portal:
+
+![VM IP](./docs/images/vm_ip.png)
+
+#### Configuration of Spark cluster
+
+To set up Spark environment, run in CLI
+
+    az ml computetarget attach --name my-spark-env --address <cluster name>-ssh.azurehdinsight.net  --username <username> --password <password> --type cluster
+
+with the name of the cluster, cluster's SSH user name and password. The default value of SSH user name is `sshuser`, unless you changed it during provisioning of the cluster. The name of the cluster can be found in Properties section of your cluster page in Azure portal:
+
+![Cluster name](./docs/images/cluster_name.png)
+
 The step-by-step data science workflow is as follows:
 ### 1. [Data Acquisition and Understanding](./code/01_data_acquisition_and_understanding/ReadMe.md)
 ### 2. [Modeling](./code/02_modeling/ReadMe.md)
@@ -113,7 +186,7 @@ The step-by-step data science workflow is as follows:
 
 ## Conclusion
 
-We went over the details of how you could train a word embedding model using Word2Vec algorithm on Spark and then use the extracted embeddings as features to train a deep neural network for entity extraction. We have applied the training pipeline on the biomedical domain. However, the pipeline is generic enough to be applied to detect custom entity types of any other domain. You just need enough data and you can easily adapt the workflow presented here for a different domain.
+This use case scenario demonstrate how to train a word embedding model using Word2Vec algorithm on Spark and then use the extracted embeddings as features to train a deep neural network for entity extraction. We have applied the training pipeline on the biomedical domain. However, the pipeline is generic enough to be applied to detect custom entity types of any other domain. You just need enough data and you can easily adapt the workflow presented here for a different domain.
 
 ## References
 
@@ -127,3 +200,8 @@ We went over the details of how you could train a word embedding model using Wor
 
 
 
+## Contributing
+
+This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.microsoft.com.
+When you submit a pull request, a CLA-bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
+This project has adopted the Microsoft Open Source Code of Conduct. For more information see the Code of Conduct FAQ or contact opencode@microsoft.com with any additional questions or comments.
