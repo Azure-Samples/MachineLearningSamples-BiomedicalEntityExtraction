@@ -1,0 +1,24 @@
+Create dl4nlp-cluster.compute to point to an HDI cluster
+
+az ml computetarget attach --name dl4nlp-cluster --address dl4nlp-cluster-ssh.azurehdinsight.net --username sshuser --password hackExtractor@2017 --cluster
+
+Run it in a remote HDInsight cluster:
+
+az ml experiment submit -c dl4nlp-cluster 1_Download_and_Parse_XML_Spark.py
+
+az ml experiment submit -c dl4nlp-cluster 2_Train_Word2Vec_Model_Spark.py
+
+
+# Set up AML environment
+az ml env set -n myirisenv3 -g myirisenv3rg
+# Get rg from this command
+az ml env list
+# Set environment vars and compute with
+az ml env set -n entity-extractor-env -g entity-extractor-rg
+# Run in local mode
+az ml env local
+
+az ml service create realtime -n newsgroupservice -m model.pkl -f score.py -s schema.json -c conda_dependencies.yml -r python 
+
+# Create realtime service
+az ml service create realtime -n extract_biomedical_entities -f score.py -m c:\dl4nlp\models\lstm_bidirectional_model_units_300_lyrs_2_epchs_10_vs_50_ws_5_mc_400.h5 -s c:\dl4nlp\models\service-schema.json -r python -d c:\dl4nlp\models\w2vmodel_pubmed_vs_50_ws_5_mc_400.pkl -d c:\dl4nlp\models\tag_map.tsv -d ..\02_Modeling\02_ModelCreation\DataReader.py -d ..\02_Modeling\02_ModelCreation\EntityExtractor.py -c ..\..\aml_config\conda_dependencies.yml
