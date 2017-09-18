@@ -3,12 +3,12 @@
 
 ## Introduction
 
-The aim of this real-world scenario is to highlight the following:
+The aim of this real-world scenario is to highlight how to use Azure Machine Learning Workbench to solve a complicated NLP task such as entity extraction from unstructured text. Here are the key points:
 
 1. How to train a neural word embeddings model on a text corpus of about 18 million PubMed abstracts using [Spark Word2Vec implementation](https://spark.apache.org/docs/latest/mllib-feature-extraction.html#word2vec).
 2. How to build a deep Long Short-Term Memory (LSTM) recurrent neural network model for entity extraction on a GPU-enabled Azure Data Science Virtual Machine (GPU DS VM) on Azure.
 2. Demonstrate that domain-specific word embeddings model can outperform generic word embeddings models in the entity recognition task. 
-3. Demonstrate how to train and operationalize deep learning models using Azure Machine Learning Workbench and multiple compute contexts (Spark, GPU VMs).
+3. Demonstrate how to train and operationalize deep learning models using Azure Machine Learning Workbench.
 
 4. Demonstrate the following capabilities within Azure Machine Learning Workbench:
 
@@ -31,7 +31,7 @@ Our results show that the biomedical entity extraction model training on the dom
 
 The following figure shows the architecture that was used to process data and train models.
 
-![Architecture](./Images/architecture.png)
+![Architecture](./docs/images/architecture.png)
 
 ## Data Description
 
@@ -58,7 +58,7 @@ We first downloaded the raw MEDLINE abstract data from [MEDLINE](https://www.nlm
 
 ### 2. LSTM model training data
 
-The datasets used for the training and evaluation of the neural entity extraction model have d in the corresponding project folder. To obtain more information about the corpora, you could refer to the following sources:
+The neural entity extraction model has been trained and evaluated on publiclly available datasets. To obtain a detailed description about these datasets, you could refer to the following sources:
  * [Bio-Entity Recognition Task at BioNLP/NLPBA 2004](http://www.nactem.ac.uk/tsujii/GENIA/ERtask/report.html)
  * [BioCreative V CDR task corpus](http://www.biocreative.org/tasks/biocreative-v/track-3-cdr/)
  * [Semeval 2013 - Task 9.1 (Drug Recognition)](https://www.cs.york.ac.uk/semeval-2013/task9/)
@@ -79,7 +79,10 @@ The datasets used for the training and evaluation of the neural entity extractio
 
 ### Python packages
 
-* [TensorFlow](https://www.tensorflow.org/install/)
+All the required dependencies are defined in the aml_config/conda_dependencies.yml file under the scenario project folder. The dependencies defined in this file will be
+automatically provisioned for runs against docker, VM, and HDI cluster targets. For details about the Conda environment file format, refer to [here](https://conda.io/docs/using/envs.html#create-environment-file-by-hand).
+
+* [TensorFlow with GPU support](https://www.tensorflow.org/install/)
 * [CNTK 2.0](https://docs.microsoft.com/en-us/cognitive-toolkit/using-cntk-with-keras)
 * [Keras](https://keras.io/#installation)
 * NLTK
@@ -97,15 +100,15 @@ The datasets used for the training and evaluation of the neural entity extractio
 For the scenario, we use the TDSP project structure and documentation templates (Figure 1), which follows the [TDSP lifecycle](https://github.com/Azure/Microsoft-TDSP/blob/master/Docs/lifecycle-detail.md). Project is created based on instructions provided [here](https://github.com/amlsamples/tdsp/blob/master/Docs/how-to-use-tdsp-in-azure-ml.md).
 
 
-![Fill in project information](./Images/instantiation-step3.jpg) 
+![Fill in project information](./docs/images/instantiation-3.png) 
 
 The step-by-step data science workflow is as follows:
-### 1. [Data Acquisition and Understanding](https://github.com/Azure/MachineLearningSamples-BiomedicalEntityExtraction/blob/master/Code/01_Data_Acquisition_and_Understanding/ReadMe.md)
-### 2. [Modeling](./Code/02_Modeling)
-#### 2.1. [Feature generation](./Code/02_Modeling/01_FeatureEngineering/ReadMe.md)
-#### 2.2. [Train the neural entity extractor](./Code/02_Modeling/02_ModelCreation/ReadMe.md)
-#### 2.3. [Model evaluation](./Code/02_Modeling/03_ModelEvaluation/ReadMe.md)
-### 3. [Deployment](./Code/03_Deployment)
+### 1. [Data Acquisition and Understanding](./code/01_data_acquisition_and_understanding/ReadMe.md)
+### 2. [Modeling](./code/02_modeling/ReadMe.md)
+#### 2.1. [Feature generation](./code/02_modeling/01_feature_engineering/ReadMe.md)
+#### 2.2. [Train the neural entity extractor](./code/02_modeling/02_model_creation/ReadMe.md)
+#### 2.3. [Model evaluation](./code/02_modeling/03_model_evaluation/ReadMe.md)
+### 3. [Deployment](./code/03_deployment/ReadMe.md)
 
 
 ## Conclusion

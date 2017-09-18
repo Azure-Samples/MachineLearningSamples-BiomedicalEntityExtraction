@@ -1,5 +1,6 @@
 ## [Training a Neural Entity Detector using Pubmed Word Embeddings](3_Train_Neural_Entity_Extractor_GPU.py)
-This [script](3_Train_Neural_Entity_Extractor_GPU.py) describes how you can use [Keras](https://keras.io/) with [Tensorflow](https://www.tensorflow.org/) backend to train a deep neural network for entity recognition. We demonstrate how we can use the Word Embeddings generated previously to initialize the embedding layer of the neural network. The task at hand is to identity drug and disease mentions in a given text. We are using an auto labeled dataset which is the combination of SemEval 2013 - Task 9.1 (Drug Recognition) and BioCreative V CDR task corpus.
+
+The [companion script](3_Train_Neural_Entity_Extractor_GPU.py) describes how you can use [Keras](https://keras.io/) with [Tensorflow](https://www.tensorflow.org/) backend to train a deep neural network for entity recognition. We demonstrate how we can use the Word Embeddings generated previously to initialize the embedding layer of the neural network. The task at hand is to identity drug and disease mentions in a given text. We are using an auto labeled dataset which is the combination of SemEval 2013 - Task 9.1 (Drug Recognition) and BioCreative V CDR task corpus.
 
 
 This Python script runs locally on an [NC6 Windows Data Science VM](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro) by Azure which has a single GPU, for more information about pricing, [click here](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/series/#n-series).
@@ -59,5 +60,5 @@ Once we have the output in the above format we can use the SharedTaskEvaluation 
 ![Sample Evaluation](../../../Images/evaluation-sample.png)
 
 
-
-
+### Next Step
+2.3. [Model evaluation](./code/02_modeling/03_model_evaluation/ReadMe.md)

@@ -35,3 +35,6 @@ spark cluster.
 - Memory Issues
 
  While working with spark there might be a few places where you may get Memory Exceptions. For example, while downloading the XML files it is advisable to continuosly store the data rather than wait for storing after completing the entire processing. Another place is using Word2vec with very small mincount, high vector size, low number of partitions. If the dataset you are working with is as huge as the Medline then it is advisable to test the performance on a sampled dataset like (10% or so) and then scale the parameters.
+
+### Next Step
+ 2.2. [Train the neural entity extractor](./code/02_modeling/02_model_creation/ReadMe.md)
