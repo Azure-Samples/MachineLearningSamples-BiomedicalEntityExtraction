@@ -1,6 +1,8 @@
-## [Train Word2Vec Word Embedding Model](2_Train_Word2Vec.ipynb)
-This [Notebook](2_Train_Word2Vec.ipynb) covers how you can train, evaluate and visualize word embeddings using **[Word2Vec](https://arxiv.org/pdf/1301.3781.pdf)** implementaion from **[MLLib](https://spark.apache.org/docs/latest/mllib-feature-extraction.html#word2vec)** 
-in **Spark**. The MLLib function for word2vec is based on a continuos skip-gram model that tries to predict the context words given a word. To optimse the performance this implementation uses hierarchical softmax. H-SoftMax 
+## 2.1 Feature Engineering
+### [Train Word2Vec Word Embedding Model](2_Train_Word2Vec_Model_Spark.py)
+
+The [companion script](2_Train_Word2Vec_Model_Spark.py) covers how you can train, evaluate and visualize word embeddings using **[Word2Vec](https://arxiv.org/pdf/1301.3781.pdf)** implementation from **[MLLib](https://spark.apache.org/docs/latest/mllib-feature-extraction.html#word2vec)** 
+in **Spark**. The MLLib function for word2vec is based on a continuos skip-gram model that tries to predict the context words given a word. To optimse the performance, this implementation uses hierarchical softmax. H-SoftMax 
 essentially replaces the flat SoftMax layer with a hierarchical layer that has the words as leaves. This allows us to decompose calculating the probability of one word into a sequence of probability calculations, 
 which saves us from having to calculate the expensive normalization over all words. The algorithm has several hyper-parameters which can be tuned to obtain better performance. These are windowSize, vectorSize etc. (We 
 define the meaning of each parameter in step 5). results for hyper parameter tuning are present in the end. Let's begin extracting word embeddings for Bio-medical terms.
@@ -25,7 +27,7 @@ spark cluster.
 
 - Step 6: Save the Word Embeddings in Parquet format
 
-#### Notes:
+### Notes:
 
 - Hyper-Parameter Tuning: The training time of the Word2Vec algorithm depends on the hyper-parameter values as well as the size of the Spark cluster.
     *  We also see having a larger mincount is giving better results but it is also decreasing the coverage over the test set, hence its advisable to keep micount as a low number.
@@ -34,7 +36,10 @@ spark cluster.
 
 - Memory Issues
 
- While working with spark there might be a few places where you may get Memory Exceptions. For example, while downloading the XML files it is advisable to continuosly store the data rather than wait for storing after completing the entire processing. Another place is using Word2vec with very small mincount, high vector size, low number of partitions. If the dataset you are working with is as huge as the Medline then it is advisable to test the performance on a sampled dataset like (10% or so) and then scale the parameters.
+     * While working with Spark there might be a few places where you may get Memory Exceptions. For example, while downloading the XML files it is advisable to continuosly store the data rather than wait for storing after completing the entire processing. 
+     * Another place is using Word2vec with very small mincount, high vector size, low number of partitions. If the dataset you are working with is as huge as the Medline then it is advisable to test the performance on a sampled dataset like (10% or so) and then scale the parameters.
+     * Increase the number of node in your cluster.
+     * Increase the Java heap size of the Spark cluster executors.  
 
 ### Next Step
  2.2. [Train the neural entity extractor](./code/02_modeling/02_model_creation/ReadMe.md)

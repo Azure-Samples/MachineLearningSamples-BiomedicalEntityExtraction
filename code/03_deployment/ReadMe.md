@@ -1,4 +1,5 @@
-### 3. [Operationalize the Neural Entity Extractor Model](score.py)
+## 4. Deployment
+### [Operationalize the neural entity extraction model](score.py)
 
 In order to operationalize a deep learning model if need to take care about installing a lot of its dependencies. For example the machine should have Python, Keras TensorFlow etc. which is extremely time consuming and error prone at the same time. In order to ensure that we do not run into any configurations related issues we can take the advantage of [Docker containers](https://blogs.msdn.microsoft.com/uk_faculty_connection/2016/09/23/getting-started-with-docker-and-container-services/).
 Docker Containers essentially *Wrap a piece of software in a complete filesystem that contains everything needed to run: code, runtime, system tools, system libraries – anything that can be installed on a server. This guarantees that the software will always run the same, regardless of its environment. *
