@@ -79,8 +79,9 @@ The neural entity extraction model has been trained and evaluated on publiclly a
 
     * To maximize performance of the cluster, we recommend to change the parameters spark.executor.instances, spark.executor.cores, and spark.executor.memory by following the instructions [here](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-apache-spark-jupyter-spark-sql) and editing the definitions in "custom spark defaults" section. 
 
-* You can run the entity extraction model training locally on a [NC6 Data Science Virtual Machine (DSVM)](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro) 
-* To run scenario with remote docker, provision Ubuntu Data Science Virtual Machine (DSVM) by following the instructions [here](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-provision-vm). We recommend using [NC6 Data Science Virtual Machine (DSVM)](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro) for scale-up computation.
+* You can run the entity extraction model training locally on a [Data Science Virtual Machine (DSVM)](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro) or in a remote Docker container in a remote DSVM.
+
+* To provision DSVM for Linux (Ubuntu), follow the instructions [here](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-provision-vm). We recommend using [NC6 Standard (56 GB, K80 NVIDIA Tesla)](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro).
 
 ### Python packages
 
@@ -171,7 +172,7 @@ This command creates two files my-dsvm-env.compute and my-dsvm-env.runconfig und
 
 To set up Spark environment, run the following command in the CLI:
 ```
-    az ml computetarget attach --name my-spark-env --address <cluster name>-ssh.azurehdinsight.net  --username <username> --password <password> --cluster
+    az ml computetarget attach --name my-spark-env --address <cluster name>-ssh.azurehdinsight.net  --username <username> --password <password> --type cluster
 ```
 with the name of the cluster, cluster's SSH user name and password. The default value of SSH user name is `sshuser`, unless you changed it during provisioning of the cluster. The name of the cluster can be found in Properties section of your cluster page in Azure portal:
 
