@@ -13,7 +13,7 @@ The aim of this real-world scenario is to highlight how to use Azure Machine Lea
 4. Demonstrate the following capabilities within Azure Machine Learning Workbench:
 
     * Instantiation of [Team Data Science Process (TDSP) structure and templates](how-to-use-tdsp-in-azure-ml.md).
-    * Automated management of the download and the installation of your project dependencies
+    * Automated management of your project dependencies including the download and the installation 
     * Execution of code in Jupyter notebooks as well as Python scripts.
     * Run history tracking for Python files.
     * Execution of jobs on remote Spark compute context using HDInsight Spark 2.1 clusters.
