@@ -6,7 +6,7 @@
 The aim of this real-world scenario is to highlight how to use Azure Machine Learning Workbench to solve a complicated NLP task such as entity extraction from unstructured text. Here are the key points:
 
 1. How to train a neural word embeddings model on a text corpus of about 18 million PubMed abstracts using [Spark Word2Vec implementation](https://spark.apache.org/docs/latest/mllib-feature-extraction.html#word2vec).
-2. How to build a deep Long Short-Term Memory (LSTM) recurrent neural network model for entity extraction on a GPU-enabled Azure Data Science Virtual Machine (GPU DS VM) on Azure.
+2. How to build a deep Long Short-Term Memory (LSTM) recurrent neural network model for entity extraction on a GPU-enabled Azure Data Science Virtual Machine (GPU DSVM) on Azure.
 2. Demonstrate that domain-specific word embeddings model can outperform generic word embeddings models in the entity recognition task. 
 3. Demonstrate how to train and operationalize deep learning models using Azure Machine Learning Workbench.
 
@@ -131,7 +131,7 @@ To install these packages in Docker image and in the nodes of Spark cluster, we 
         - matplotlib
         - fastparquet
         - keras
-    - azure-storage
+        - azure-storage
 
 The modified conda\_dependencies.yml file is stored in aml_config directory of this project. 
 
@@ -158,9 +158,9 @@ In the next two sections we show how to complete configuration of remote docker 
 #### Configuration of remote Docker container
 
  To set up a remote Docker container, run the following command in the CLI:
-
+'''
     az ml computetarget attach --name my-dsvm-env --address <IP address> --username <username> --password <password> --type remotedocker
-
+'''
 with IP address, user name and password in DSVM. IP address of DSVM can be found in Overview section of your DSVM page in Azure portal:
 
 ![VM IP](./docs/images/vm_ip.png)
@@ -170,9 +170,9 @@ This command creates two files my-dsvm-env.compute and my-dsvm-env.runconfig und
 #### Configuration of Spark cluster
 
 To set up Spark environment, run the following command in the CLI:
-
-    az ml computetarget attach --name my-spark-env --address <cluster name>-ssh.azurehdinsight.net  --username <username> --password <password> --type cluster
-
+'''
+    az ml computetarget attach --name my-spark-env --address <cluster name>-ssh.azurehdinsight.net  --username <username> --password <password> --cluster
+'''
 with the name of the cluster, cluster's SSH user name and password. The default value of SSH user name is `sshuser`, unless you changed it during provisioning of the cluster. The name of the cluster can be found in Properties section of your cluster page in Azure portal:
 
 ![Cluster name](./docs/images/cluster_name.png)
