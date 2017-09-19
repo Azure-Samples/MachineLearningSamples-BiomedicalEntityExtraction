@@ -33,6 +33,7 @@ To run this script into the HDInsight Spark cluster,
 ```
     aaz ml experiment submit -c my-spark-env 2_Train_Word2Vec_Model_Spark.py   
 ```
+
     where my-spark-env is the Spark environment defined in the [configuration step](../../ReadMe.md).
     
 ### Notes:
