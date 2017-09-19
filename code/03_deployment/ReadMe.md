@@ -9,7 +9,7 @@ The aim of the [companion script](score.py) is to show how to use Azure ML workb
 
 Launch a Data Science Virtual Machine (Ubuntu) from portal.azure.com as shown below. Follow the steps to create the virtual machine on selection and ssh into the machine.
 
-![DataScienceVirtualMachine](Images/DataScienceVirtualMachine.png)
+![DataScienceVirtualMachine](docs/images/ds-vm-creation.png)
 
 Pip is a better alternative to Easy Install for installing Python packages. To install pip on ubuntu run the bellow command:
 ```

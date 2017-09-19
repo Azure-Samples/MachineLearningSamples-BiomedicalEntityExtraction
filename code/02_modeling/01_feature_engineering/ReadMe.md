@@ -30,9 +30,9 @@ To run this script into the HDInsight Spark cluster,
 1. Run the Azure ML Workbench installed into your DS VM.
 2. Open command line window (CLI) by clicking File menu in the top left corner of AML Workbench and choosing "Open Command Prompt." 
 3. Then run the following command in the CLI window:
-
+```
     aaz ml experiment submit -c my-spark-env 2_Train_Word2Vec_Model_Spark.py   
-
+```
     where my-spark-env is the Spark environment defined in the [configuration step](../../ReadMe.md).
     
 ### Notes:

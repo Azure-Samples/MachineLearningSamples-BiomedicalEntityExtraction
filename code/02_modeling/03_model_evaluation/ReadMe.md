@@ -11,17 +11,18 @@ If you have Azure ML Workbench installed into your DS VM and would like to run t
 1. Run the Azure ML Workbench installed into your DS VM.
 2. Open command line window (CLI) by clicking File menu in the top left corner of AML Workbench and choosing "Open Command Prompt." 
 3. Then run the following command in the CLI window:
-
+```
     az ml experiment submit -c local 4_Test_Entity_Extractor_GPU.py   
-    
+``` 
+
 #### 2. Execution in a Docker container in a remote VM
 If you have Azure ML Workbench installed into your desktop or laptop and would like to run this script remotely into the DS VM, 
 1. Run the Azure ML Workbench installed into your desktop or laptop.
 2. Open command line window (CLI) by clicking File menu in the top left corner of AML Workbench and choosing "Open Command Prompt." 
 3. Then run the following command in the CLI window:
-
+```
     az ml experiment submit -c my-dsvm-env 4_Test_Entity_Extractor_GPU.py   
-
+```
     where my-dsvm-env is the remote Docker container environment defined in the [configuration step](../../../ReadMe.md).
 
 ### Execution Steps 
