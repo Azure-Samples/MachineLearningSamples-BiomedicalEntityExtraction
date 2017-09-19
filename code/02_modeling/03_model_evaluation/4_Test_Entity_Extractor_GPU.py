@@ -1,105 +1,250 @@
 
 # coding: utf-8
+'''
+From Azure ML CLI, run the following commands:
 
-# ## Testing the Neural Entity Detector trained using Pubmed Word Embeddings
+conda install tensorflow-gpu
+conda install fastparquet
+conda install nltk
+
+'''
+# ## Training a Neural Entity Detector using Pubmed Word Embeddings
+from DataReader import DataReader
+from EntityExtractor import EntityExtractor
+import tensorflow
+from tensorflow.python.client import device_lib
+print(device_lib.list_local_devices())
+tensorflow.device('/gpu:0')
+import nltk 
+nltk.download('popular')
+import os 
 
 # ### Step 1
 
-# #### Copy the Embeddings from source location to destination location
 
-# In[ ]:
+# #### Generate the Embedding Matrix from Parquet files on the Container linked to your Spark Cluster
+def download_embedding_parquet_files_from_storage():
+    from azure.storage.blob import BlockBlobService
+    import numpy as np
+    import datetime
 
-get_ipython().system(u'cp "Location of Word2Vec_Model.p" .')
+    import os
+    import shutil
+    import fastparquet
+    import pickle
+    timestart = datetime.datetime.now()
 
+    block_blob_service = BlockBlobService(account_name = storage_account_name, account_key = storage_account_key)    
+    
+    #Specify the string to look for in blob names from your container
+    embedding_relative_path = "Models/word2vec_pubmed_model_vs_{}_ws_{}_mc_{}_parquet_files".\
+        format(vector_size, window_size, min_count)
+
+    embedding_full_path = os.path.join(home_dir, embedding_relative_path)
+    print("embedding_full_path= {}".format(embedding_full_path))
+
+    if os.path.exists(embedding_full_path):
+        shutil.rmtree(embedding_full_path)
+
+    os.makedirs(embedding_full_path)
+            
+    num_parquet_files = 0
+    generator = block_blob_service.list_blobs(storage_container_name)
+    for blob in generator:      
+        if embedding_relative_path in blob.name and blob.name.endswith(".parquet"):              
+            num_parquet_files = num_parquet_files +1
+            filename = blob.name.split("/")[-1]
+            block_blob_service.get_blob_to_path(storage_container_name, blob.name, os.path.join(embedding_full_path,filename))      
+            
+    print ("Reading {} parquet files".format(num_parquet_files))
+    timeend = datetime.datetime.now()
+    timedelta = round((timeend-timestart).total_seconds() / 60, 2)
+    print ("Time taken to execute above cell: " + str(timedelta) + " mins")
+            
+def save_embeddings_to_pickle_file():
+        import pandas 
+        import datetime
+        timestart = datetime.datetime.now()
+
+        print ("Embedding vector size =", vector_size)
+    
+        embedding_pickle_file = os.path.join(home_dir, "Models/w2vmodel_pubmed_vs_{}_ws_{}_mc_{}.pkl" \
+            .format(vector_size, window_size, min_count))
+
+        Word2Vec_Model = {}
+
+        print("Reading the Parquet embedding files ....")
+        files = os.listdir(embedding_full_path)
+        for index, filename in enumerate(files):
+            if "part" in filename:        
+                parquet_file_path = os.path.join(embedding_full_path,filename)
+                print("reading {}".format(parquet_file_path))
+
+                try:
+                    pfile = fastparquet.ParquetFile(parquet_file_path) 
+                    # convert to pandas dataframe
+                    df =  pfile.to_pandas()    
+        #             df = pandas.read_csv(tsv_full_path, sep='\t')
+            
+                    #print(df.head())    
+                    arr = list(df.values)                 
+                    for ind, vals in enumerate(arr):
+                        word = vals[0]
+                        word_vec = vals[-vector_size:]
+                        word_vec = np.array(word_vec)
+                        Word2Vec_Model[word] = word_vec.astype('float32')
+                except:
+                    print("Skip {}".format(filename))
+                
+        #save the embedding matrix into a pickle file
+        print("save the embedding matrix of {} entries into a pickle file".format(len(Word2Vec_Model)))
+        pickle.dump(Word2Vec_Model, open(embedding_pickle_file, "wb")) 
+        
+        timeend = datetime.datetime.now()
+        timedelta = round((timeend-timestart).total_seconds() / 60, 2)
+        print ("Time taken to execute above cell: " + str(timedelta) + " mins")
+        return(embedding_pickle_file)
 
 # #### Copy the Training Data, Testing Data, Evaluation Script to destination location
+def download_data_from_storage():
+    from azure.storage.blob import BlockBlobService
+    import os
+    block_blob_service = BlockBlobService(account_name = storage_account_name, account_key = storage_account_key)
 
-# In[1]:
+    generator = block_blob_service.list_blobs(storage_container_name)
 
-get_ipython().system(u'mkdir Drugs')
-get_ipython().system(u'cp "Location of train_drugs.txt" Drugs')
-get_ipython().system(u'cp "Location of test_srugs.txt" Drugs')
-get_ipython().system(u'cp "Location of evaluation script" Drugs')
-get_ipython().system(u'wget https://wcds2017summernlp.blob.core.windows.net/entityrecognition/NERmodel_Drugs.model')
-get_ipython().system(u'chmod 777 Drugs/evaldrugs.pl')
+    if not os.path.exists(os.path.join(home_dir, data_folder)):
+        os.makedirs(os.path.join(home_dir, data_folder))   
+        
+    block_blob_service.get_blob_to_path(storage_container_name, train_file_relative_path, train_file_local_path)
+    block_blob_service.get_blob_to_path(storage_container_name, test_file_relative_path, test_file_local_path)
 
+    return (train_file_local_path, test_file_local_path)
 
-# In[1]:
-
-get_ipython().run_cell_magic(u'writefile', u'Data_Preparation.py', u'from keras.preprocessing import sequence\nimport numpy as np\nimport cPickle as cpickle\n\nclass Data_Preparation:\n\n    def __init__ (self, classes, seq_length, train_file=None, test_file=None, vector_size = 100):\n        \n        # Some constants\n        self.DEFAULT_N_CLASSES = classes\n        self.DEFAULT_N_FEATURES = vector_size\n        self.DEFAULT_MAX_SEQ_LENGTH = seq_length\n        \n        # Other stuff\n        self.wordvecs = None\n        self.word_to_ix_map = {}\n        self.n_features = 0\n        self.n_tag_classes = 0\n        self.n_sentences_all = 0\n        self.tag_vector_map = {}\n        \n        self.max_sentence_len_train = 0\n        self.max_sentence_len_test = 0\n        self.max_sentence_len = 0\n        \n        self.all_X_train = []\n        self.all_Y_train = []\n        self.all_X_test = []\n        self.all_Y_test = []\n        self.unk_words = []\n        \n        self.read_and_parse_data(train_file, test_file)\n            \n    def get_data (self):\n        return (self.all_X_train, self.all_Y_train, self.all_X_test, self.all_Y_test, self.wordvecs)\n    \n    def decode_prediction_sequence (self, pred_seq):\n        \n        pred_tags = []\n        for class_prs in pred_seq:\n            class_vec = np.zeros(self.DEFAULT_N_CLASSES, dtype=np.int32)\n            class_vec[np.argmax(class_prs)] = 1\n            if tuple(class_vec.tolist()) in self.tag_vector_map:\n                pred_tags.append(self.tag_vector_map[tuple(class_vec.tolist())])\n            else:\n                print tuple(class_vec.tolist())\n        return pred_tags\n    \n    def read_and_parse_data (self, train_file, test_file, skip_unknown_words = False):\n        \n        ###Load the Word2Vec Model###\n        print("Loading W2V model")\n        W2V_model = cpickle.load(open("Word2Vec_Model.p", "rb"))\n        \n        vocab = list(W2V_model.keys())\n        \n        self.word_to_ix_map = {}\n        self.wordvecs = []\n        \n        ###Create LookUp Table for words and their word vectors###\n        print("Creating LookUp table")\n        for index, word in enumerate(vocab):\n            self.word_to_ix_map[word] = index\n            self.wordvecs.append(W2V_model[vocab[index]])\n        \n        self.wordvecs = np.array(self.wordvecs)\n        print(len(self.wordvecs))\n        self.n_features = len(self.wordvecs[0])\n        print(self.n_features)\n        \n        # Add a zero vector for the Paddings\n        self.wordvecs = np.vstack((self.wordvecs, np.zeros(self.DEFAULT_N_FEATURES)))\n        zero_vec_pos = self.wordvecs.shape[0] - 1\n        \n        ##########################  READ TRAINING DATA  ######################### \n        with open(train_file, \'r\') as f_train:\n            \n            self.n_tag_classes = self.DEFAULT_N_CLASSES\n            self.tag_vector_map = {}    # For storing one hot vector notation for each Tag\n            tag_class_id = 0            # Used to put 1 in the one hot vector notation\n            raw_data_train = []\n            raw_words_train = []\n            raw_tags_train = []        \n\n            # Process all lines in the file\n            for line in f_train:\n                line = line.strip()\n                if not line:\n                    raw_data_train.append( (tuple(raw_words_train), tuple(raw_tags_train)))\n                    raw_words_train = []\n                    raw_tags_train = []\n                    continue\n                \n                word, tag = line.split(\'\\t\')\n                \n                raw_words_train.append(word)\n                raw_tags_train.append(tag)\n                \n                if tag not in self.tag_vector_map:\n                    one_hot_vec = np.zeros(self.DEFAULT_N_CLASSES, dtype=np.int32)\n                    one_hot_vec[tag_class_id] = 1\n                    self.tag_vector_map[tag] = tuple(one_hot_vec)\n                    self.tag_vector_map[tuple(one_hot_vec)] = tag\n                    tag_class_id += 1\n                    \n        print("raw_nd = " + str(len(raw_data_train)))\n        \n        #Adding a None Tag\n        one_hot_vec = np.zeros(self.DEFAULT_N_CLASSES, dtype = np.int32)\n        one_hot_vec[tag_class_id] = 1\n        self.tag_vector_map[\'NONE\'] = tuple(one_hot_vec)\n        self.tag_vector_map[tuple(one_hot_vec)] = \'NONE\'\n        tag_class_id += 1\n        \n        self.n_sentences_all = len(raw_data_train)\n\n        # Find the maximum sequence length for Training data\n        self.max_sentence_len_train = 0\n        for seq in raw_data_train:\n            if len(seq[0]) > self.max_sentence_len_train:\n                self.max_sentence_len_train = len(seq[0])\n                \n                \n        ##########################  READ TEST DATA  ######################### \n        with open(test_file, \'r\') as f_test:\n            \n            self.n_tag_classes = self.DEFAULT_N_CLASSES\n            tag_class_id = 0 \n            raw_data_test = []\n            raw_words_test = []\n            raw_tags_test = []        \n\n            # Process all lines in the file\n            for line in f_test:\n                line = line.strip()\n                if not line:\n                    raw_data_test.append( (tuple(raw_words_test), tuple(raw_tags_test)))\n                    raw_words_test = []\n                    raw_tags_test = []\n                    continue\n                \n                word, tag = line.split(\'\\t\') \n                \n                if tag not in self.tag_vector_map:\n                    print "added"\n                    one_hot_vec = np.zeros(self.DEFAULT_N_CLASSES, dtype=np.int32)\n                    one_hot_vec[tag_class_id] = 1\n                    self.tag_vector_map[tag] = tuple(one_hot_vec)\n                    self.tag_vector_map[tuple(one_hot_vec)] = tag\n                    tag_class_id += 1\n                \n                raw_words_test.append(word)\n                raw_tags_test.append(tag)\n                \n                                    \n        print("raw_nd = " + str(len(raw_data_test)))\n        self.n_sentences_all = len(raw_data_test)\n\n        # Find the maximum sequence length for Test Data\n        self.max_sentence_len_test = 0\n        for seq in raw_data_test:\n            if len(seq[0]) > self.max_sentence_len_test:\n                self.max_sentence_len_test = len(seq[0])\n                \n        #Find the maximum sequence length in both training and Testing dataset\n        self.max_sentence_len = max(self.max_sentence_len_train, self.max_sentence_len_test)\n        \n        ############## Create Train Vectors################\n        self.all_X_train, self.all_Y_train = [], []\n        \n        self.unk_words = []\n        count = 0\n        for word_seq, tag_seq in raw_data_train:  \n            \n            elem_wordvecs, elem_tags = [], []            \n            for ix in range(len(word_seq)):\n                w = word_seq[ix]\n                t = tag_seq[ix]\n                w = w.lower()\n                if w in self.word_to_ix_map :\n                    count += 1\n                    elem_wordvecs.append(self.word_to_ix_map[w])\n                    elem_tags.append(self.tag_vector_map[t])\n\n                elif "UNK" in self.word_to_ix_map :\n                    elem_wordvecs.append(self.word_to_ix_map["UNK"])\n                    elem_tags.append(self.tag_vector_map[t])\n                \n                else:\n                    w = "UNK"       \n                    new_wv = 2 * np.random.randn(self.DEFAULT_N_FEATURES) - 1 # sample from normal distribution\n                    norm_const = np.linalg.norm(new_wv)\n                    new_wv /= norm_const\n                    self.wordvecs = np.vstack((self.wordvecs, new_wv))\n                    self.word_to_ix_map[w] = self.wordvecs.shape[0] - 1\n                    elem_wordvecs.append(self.word_to_ix_map[w])\n                    elem_tags.append(list(self.tag_vector_map[t]))\n\n            \n            # Pad the sequences for missing entries to make them all the same length\n            nil_X = zero_vec_pos\n            nil_Y = np.array(self.tag_vector_map[\'NONE\'])\n            pad_length = self.max_sentence_len - len(elem_wordvecs)\n            self.all_X_train.append( ((pad_length)*[nil_X]) + elem_wordvecs)\n            self.all_Y_train.append( ((pad_length)*[nil_Y]) + elem_tags)\n\n        self.all_X_train = np.array(self.all_X_train)\n        self.all_Y_train = np.array(self.all_Y_train)\n        \n        ########################Create TEST Vectors##########################\n\n        self.all_X_test, self.all_Y_test = [], []\n        \n        for word_seq, tag_seq in raw_data_test:  \n            \n            elem_wordvecs, elem_tags = [], []            \n            for ix in range(len(word_seq)):\n                w = word_seq[ix]\n                t = tag_seq[ix]\n                w = w.lower()\n                if w in self.word_to_ix_map:\n                    count += 1\n                    elem_wordvecs.append(self.word_to_ix_map[w])\n                    elem_tags.append(self.tag_vector_map[t])\n                    \n                elif "UNK" in self.word_to_ix_map :\n                    self.unk_words.append(w)\n                    elem_wordvecs.append(self.word_to_ix_map["UNK"])\n                    elem_tags.append(self.tag_vector_map[t])\n                    \n                else:\n                    self.unk_words.append(w)\n                    w = "UNK"\n                    self.word_to_ix_map[w] = self.wordvecs.shape[0] - 1\n                    elem_wordvecs.append(self.word_to_ix_map[w])\n                    elem_tags.append(self.tag_vector_map[t])\n                \n            # Pad the sequences for missing entries to make them all the same length\n            nil_X = zero_vec_pos\n            nil_Y = np.array(self.tag_vector_map[\'NONE\'])\n            pad_length = self.max_sentence_len - len(elem_wordvecs)\n            self.all_X_test.append( ((pad_length)*[nil_X]) + elem_wordvecs)\n            self.all_Y_test.append( ((pad_length)*[nil_Y]) + elem_tags)\n\n        self.all_X_test = np.array(self.all_X_test)\n        self.all_Y_test = np.array(self.all_Y_test)\n        \n        print("UNK WORD COUNT " + str(len(self.unk_words)))\n        print("Found WORDS COUNT " + str(count))\n        print("TOTAL WORDS " + str(count+len(self.unk_words)))\n        \n        return (self.all_X_train, self.all_Y_train, self.all_X_test, self.all_Y_test, self.wordvecs)\n ')
-
-
-# In[7]:
-
-from Data_Preparation import Data_Preparation
-from NER_Model import NER_Model
-import cPickle as cp
+# #### Step 4 Train the network on the prepared data and obtain the predictions on the test set
+# from Data_Preparation2 import Data_Preparation2
+# from Entity_Extractor import Entity_Extractor
+#import cPickle as cp
 from keras.models import load_model
+import keras.backend as K
 import numpy as np
 
-TRAIN_FILEPATH = "Drugs//train_drugs.txt"
-TEST_FILEPATH = "Drugs//test_drugs.txt"
-
-vector_size = 50
-classes = 7 + 1
-seq_length = 613
-layer_arg = 2
-ep_arg = 10
-
 if __name__ == "__main__":
+    print("Running on BIO-NLP data\n\n")    
+    #Specify the path where to store the downloaded files    
+    home_dir = "C:\\dl4nlp" 
+    print("home_dir = {}".format(home_dir))
+    data_folder = "Data/Drugs_and_Diseases/"
+    train_file_relative_path = os.path.join(data_folder, "train_out.txt")
+    test_file_relative_path = os.path.join(data_folder, "test_sample.txt")    
+    data_file_relative_path= os.path.join(data_folder, "unlabeled_test_sample.txt")
 
-    reader = Data_Preparation(classes, seq_length, TRAIN_FILEPATH, TEST_FILEPATH, vector_size)
+    #Azure BLOB Storage account information
+    storage_account_name = '76f8577bf451dsvm'
+    storage_account_key ='5DPDh+p3Xbg9BfS9d/OSrtQ/Utrat1Rr/NRrGU+x3cRYPZYi6B92WEWUIkM28Z8cGRsRz0cuSGb2mjyBCB0QXg=='
+    storage_container_name ='dl4nlp-container'    
     
-    X_train, Y_train, X_test, Y_test, wordvecs = reader.get_data()
-
-    nermodel = load_model("NERmodel_Drugs.model")
+    window_size = 5
+    embed_vector_size = 50
+    min_count =400
+    #download_embedding_parquet_files_from_storage()
+    #embedding_pickle_file = save_embeddings_to_pickle_file()
     
-    # Evaluate the model
-    print("Evaluating model...")
-    target = open("Pubmed_Output.txt", 'w')
-    predicted_tags= []
-    test_data_tags = []
-    ind = 0
-    for x,y in zip(X_test, Y_test):
-        tags = nermodel.predict(np.array([x]), batch_size=1)[0]
-        pred_tags = reader.decode_prediction_sequence(tags)
-        test_tags = reader.decode_prediction_sequence(y)
-        ind += 1
-        ### To see Progress ###
-        if ind%500 == 0: 
-            print("Sentence" + str(ind))
+    embedding_pickle_file = os.path.join(home_dir, "Models/w2vmodel_pubmed_vs_{}_ws_{}_mc_{}.pkl" \
+            .format(embed_vector_size, window_size, min_count))
 
-        pred_tag_wo_none = []
-        test_tags_wo_none = []
+    # Read the data
+    train_file_local_path = os.path.join(home_dir, train_file_relative_path)
+    test_file_local_path = os.path.join(home_dir, test_file_relative_path)
+    data_file_local_path = os.path.join(home_dir, data_file_relative_path)
 
-        for index, test_tag in enumerate(test_tags):
-            if test_tag != "NONE":
-                test_tags_wo_none.append(test_tag)
-                pred_tag_wo_none.append(pred_tags[index])
+    #train_file_local_path, test_file_local_path = download_data_from_storage()  
 
-        for wo in pred_tag_wo_none:
-            target.write(str(wo))
-            target.write("\n")
-        target.write("\n")
+    tag_to_idx_map_file = os.path.join(home_dir, "Models", "tag_map.tsv")
 
-        for i,j in zip(pred_tags, test_tags):
-            if i != "NONE" and j != "NONE":
-                test_data_tags.append(j)
-                predicted_tags.append(i)
-
-    target.close()
-
-    predicted_tags = np.array(predicted_tags)
-    test_data_tags = np.array(test_data_tags)
+    # Train the model        
+    #network_type= 'unidirectional'
+    network_type= 'bidirectional'
+    #embed_vector_size = 50
+    num_classes = 7 + 1
+    max_seq_length = 613
+    num_layers = 2
+    num_hidden_units = 300
+    num_epochs = 10
     
-    print("Done.") 
+    print("Initializing data...")                  
 
+    model_file_path = os.path.join(home_dir,'Models','lstm_{}_model_units_{}_lyrs_{}_epchs_{}_vs_{}_ws_{}_mc_{}.h5'.\
+                  format(network_type, num_hidden_units, num_layers,  num_epochs, embed_vector_size, window_size, min_count))
+    
+    #mode = 'train'
+    mode = 'evaluate'
+    #mode = 'score'
+    K.clear_session()
+    with K.get_session() as sess:        
+        K.set_session(sess)
+        graphr = K.get_session().graph
+        with graphr.as_default():                        
 
-# In[8]:
+            if mode == 'train':
+                print("Training the model... num_epochs = {}, num_layers = {}".format(num_epochs, num_layers))
+
+                reader = DataReader(num_classes, vector_size =embed_vector_size) 
+                entityExtractor = EntityExtractor(reader, embedding_pickle_file)
+                entityExtractor.train(train_file_local_path, network_type, num_epochs, num_hidden_units, num_layers)    
+                entityExtractor.save_tag_map(tag_to_idx_map_file)
+
+                #Save the model
+                entityExtractor.save(model_file_path)
+            elif mode == 'evaluate':
+                # Evaluate the model
+                print("Evaluating the model...")
+
+                reader = DataReader(num_classes, max_seq_length, tag_to_idx_map_file, vector_size=embed_vector_size)   
+                entityExtractor = EntityExtractor(reader, embedding_pickle_file)
+
+                #load the model
+                print("Loading the model from file {} ...".format(model_file_path))
+                entityExtractor.load(model_file_path)
+                entityExtractor.print_summary()                
+                
+                confusion_matrix = entityExtractor.evaluate_model(test_file_local_path)
+                print(confusion_matrix)
+            elif mode == 'score':
+                print("Starting the model prediction ...")
+
+                reader = DataReader(num_classes, max_seq_length, tag_to_idx_map_file, vector_size=embed_vector_size) 
+                entityExtractor = EntityExtractor(reader, embedding_pickle_file)
+                
+                 #load the model
+                print("Loading the model from file {} ...".format(model_file_path))
+                entityExtractor.load(model_file_path)
+                entityExtractor.print_summary()
+
+                predicted_tags = entityExtractor.predict_2(data_file_local_path)
+                if not os.path.exists("C:\dl4nlp\output"):
+                    os.makedirs("C:\dl4nlp\output")
+
+                with open('C:\dl4nlp\output\prediction.out', 'w') as f:
+                    for ind, line in enumerate(predicted_tags):
+                        f.write("{}\t{}\n".format(ind,line))
+
+            else:
+                print("undefined mode")                        
+                
+    K.clear_session()
+    K.set_session(None)
+    print("Done.")     
+    
+'''
+
+# #### Step 5 Generate the output of the model in the correct format for evaluation
+
+# In[11]:
 
 file1 = open("Pubmed_Output.txt")
-file2 = open("Drugs//test_drugs.txt")
-target = open("Drugs//eval2.txt", "w")
+file2 = open("Drugs_and_Diseases//test.txt")
+target = open("Drugs_and_Diseases//eval2.txt", "w")
 
 list1 = []
 list2 = []
@@ -122,13 +267,16 @@ for ind, line in enumerate(list2):
         else:
             target.write(list1[ind])
     ind += 1
-
+    
 file1.close()
 file2.close()
 target.close()
 
 
-# In[9]:
+# #### Evaluate the model predictions on the test data
 
-get_ipython().system(u'./Drugs/evaldrugs.pl Drugs/eval2.txt Drugs/test_drugs.txt')
+# In[12]:
 
+get_ipython().system(u'./Drugs_and_Diseases/evalD_a_D.pl Drugs_and_Diseases/eval2.txt Drugs_and_Diseases/test.txt #with Embedding Layer')
+
+'''

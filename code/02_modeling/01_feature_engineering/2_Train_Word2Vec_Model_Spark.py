@@ -11,26 +11,10 @@
 # visualization.
 # <br>
 # The Word Embeddings obtained from spark are stored in parquet files with gzip
-# compression.  In the next notebook we show how you can easily extract the
-# word embeddings form these parquet files and visualize them in any tool of
-# your choice.
+# compression.  In the next script, we show how to aggregate the distributed
+# word embeddings into a single pickle file then to load them into memory for the
+# feature extraction step.
 # Please increase the memory size before starting the training using the Ambari dashboard: spark.driver.memory 4000m
-# <br> This notebook is divided into several sections, details of which are
-# presented below.
-# <ol>
-# <li>Load the data into the dataframe and preprocess it.</li>
-# <li>Tokenize the data into words and train Word2Vec Model</li>
-# <li>Evaluate the Quality of the Word Embeddings by comparing the Spearman
-# Correlation on a Human Annoted Dataset</li>
-# <li>Use PCA to reduce the dimension of the Embeddings to 2 for
-# Visualization</li>
-# <li>Use t-SNE incombination with PCA to improve the Quality of the
-# Visualizations </li>
-# </ol>
-
-# ### Step 1
-
-# In[1]:
 from pyspark import SparkConf
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
@@ -53,10 +37,8 @@ spark = SparkSession \
 
 # <b> Setup the paths where the TSV files are located <b>
 
-# In[4]:
 parse_results_remote_dir = os.path.join('wasb:///', 'pubmed_data', 'tsv_files')
-#pubmed_tsv_file = "wasb:///pubmed_data/tsv_files/medline17n0001-0011.tsv" 
-# pubmedTitAbs_path = "wasb:///pubmed_data/Articles/Title_Abstracts/"
+
 
 # ### Step 2
 
@@ -88,17 +70,14 @@ for i in range(1 + batch_size, num_xml_files + 1, batch_size):
 
         print("\tAdding {} records ...".format(abstracts_batch_df.count()))
         
-        abstracts_full_df = abstracts_full_df.union(abstracts_batch_df)                    
-
-        # if i % 100 == 0:
-        #     pubmedTitAbsDF.repartition(300).write.mode("overwrite").parquet(pubmedTitAbs + str(i))
-        #     pubmedTitAbsDF = spark.read.parquet(pubmedTitAbs + str(i))            
+        abstracts_full_df = abstracts_full_df.union(abstracts_batch_df)
+       
     except:
         print("Skipped" + str(i))
 
 '''
 # uncomment the following for quick testing
-# train the model on a sample
+# train the model on a small sample
 sample_rate = 0.001
 print("Take {} random sample".format(sample_rate))
 abstracts_full_df = abstracts_full_df.sample(True, sample_rate)
@@ -117,79 +96,8 @@ print("Time taken to execute above cell: " + str(timedelta) + " mins")
 
 abstracts_full_df2 = abstracts_full_df
 
-# ### Step 3 (Optional)
 
-# ### Filtering of abstracts
-# <br> This step is totally optional.  It filters out abstracts that do not
-# contain any word that you care about.  You can specify a vocabulary for words
-# you would like to see the embeddings for in the below cell and the subsequent
-# cell will filter the abstracts based on your vocabulary.
-
-# <b> Load dictionary for Drugs and Diseases for filtering</b>
-
-# In[108]:
-
-##Uncomment if you require filtering
-'''
-vocab = "wasb:///HdiSamples/HdiSamples/Pubmed/words_rel.txt"
-vocab_df = spark.read.csv(path = words_rel, header=True, inferSchema=True, sep = "\t")
-vocab_df.printSchema()
-
-# REGISTER words_rel_df DF IN SQL-CONTEXT
-vocab_df.createOrReplaceTempView("dict_words")
-spark.sql("show tables").show()
-'''
-
-
-# <b> Filter the Abstracts based on the dictionary loaded above</b>
-# <br> This will help to filter out abstracts that donot contain words that you
-# care about
-# <br> Its an optional preprocessing step
-
-# In[109]:
-
-##Uncomment if you require filtering
-'''
-from pyspark.sql.functions import regexp_replace, trim, col, lower, udf
-from pyspark.sql.types import *
-timestart = datetime.datetime.now()
-words = []
-for row in vocab_df.collect():
-    words.append(row['words'].lower())
-
-abstracts_full_df1.printSchema()
-
-def intersect(row):
-    # convert each word in lowercase
-    if row is None:
-        return False
-    row = [x.lower() for x in row.split()]
-    return True if set(row).intersection(set(words)) else False
-
-filterUDF = udf(intersect, BooleanType())
-
-abstracts_full_df2 = abstracts_full_df1.where(filterUDF(abstracts_full_df1.abstract))
-
-a = abstracts_full_df1.count()
-b = abstracts_full_df2.count()
-print(a, b, a-b)
-
-abstracts_full_df2.repartition(200).write.mode("overwrite").parquet(filter_file)
-
-filter_file = "wasb:///HdiSamples/HdiSamples/Pubmed/filtered_df"
-abstracts_full_df2 = spark.read.parquet(filter_file)
-
-##See the Schema of the DF
-abstracts_full_df2.printSchema()
-abstracts_full_df2.count()
-
-# PRINT HOW MUCH TIME IT TOOK TO RUN THE CELL
-timeend = datetime.datetime.now()
-timedelta = round((timeend-timestart).total_seconds() / 60, 2)
-print ("Time taken to execute above cell: " + str(timedelta) + " mins");
-'''
-
-# ### Step 4
+# ### Step 2
 
 # <b> Preprocess the Abstracts </b><br>
 # We do some basic pre-processing like converting words to lowercase and

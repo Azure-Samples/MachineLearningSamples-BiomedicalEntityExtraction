@@ -114,15 +114,12 @@ def download_data_from_storage():
     generator = block_blob_service.list_blobs(storage_container_name)
 
     if not os.path.exists(os.path.join(home_dir, data_folder)):
-        os.makedirs(os.path.join(home_dir, data_folder))
-    
-    local_train_file_path  = os.path.join(home_dir, train_file_path)
-    local_test_file_path  = os.path.join(home_dir, test_file_path)
+        os.makedirs(os.path.join(home_dir, data_folder))   
         
-    block_blob_service.get_blob_to_path(storage_container_name, train_file_path, local_train_file_path)
-    block_blob_service.get_blob_to_path(storage_container_name, test_file_path, local_test_file_path)
+    block_blob_service.get_blob_to_path(storage_container_name, train_file_relative_path, train_file_local_path)
+    block_blob_service.get_blob_to_path(storage_container_name, test_file_relative_path, test_file_local_path)
 
-    return (local_train_file_path, local_test_file_path)
+    return (train_file_local_path, test_file_local_path)
 
 # #### Step 4 Train the network on the prepared data and obtain the predictions on the test set
 # from Data_Preparation2 import Data_Preparation2
@@ -138,9 +135,10 @@ if __name__ == "__main__":
     home_dir = "C:\\dl4nlp" 
     print("home_dir = {}".format(home_dir))
     data_folder = "Data/Drugs_and_Diseases/"
-    train_file_path = os.path.join(home_dir, data_folder, "train_out.txt")
-    test_file_path = os.path.join(home_dir, data_folder, "test.txt")    
-    
+    train_file_relative_path = os.path.join(data_folder, "train_out.txt")
+    test_file_relative_path = os.path.join(data_folder, "test_sample.txt")    
+    data_file_relative_path= os.path.join(data_folder, "unlabeled_test_sample.txt")
+
     #Azure BLOB Storage account information
     storage_account_name = '76f8577bf451dsvm'
     storage_account_key ='5DPDh+p3Xbg9BfS9d/OSrtQ/Utrat1Rr/NRrGU+x3cRYPZYi6B92WEWUIkM28Z8cGRsRz0cuSGb2mjyBCB0QXg=='
@@ -156,12 +154,13 @@ if __name__ == "__main__":
             .format(embed_vector_size, window_size, min_count))
 
     # Read the data
-    #local_train_file_path, local_test_file_path = download_data_from_storage()
-    local_train_file_path =  os.path.join(home_dir, "Data/Drugs_and_Diseases/", "train_out.txt")
-    local_test_file_path = os.path.join(home_dir, "Data/Drugs_and_Diseases/", "test.txt")
-    local_data_file_path= os.path.join(home_dir, "Data/Drugs_and_Diseases/", "unlabeled_test_sample.txt")
+    train_file_local_path = os.path.join(home_dir, train_file_relative_path)
+    test_file_local_path = os.path.join(home_dir, test_file_relative_path)
+    data_file_local_path = os.path.join(home_dir, data_file_relative_path)
 
-    tag_to_idx_map_file = os.path.join(home_dir, "Models/", "tag_map.tsv")
+    #train_file_local_path, test_file_local_path = download_data_from_storage()  
+
+    tag_to_idx_map_file = os.path.join(home_dir, "Models", "tag_map.tsv")
 
     # Train the model        
     #network_type= 'unidirectional'
@@ -178,8 +177,8 @@ if __name__ == "__main__":
     model_file_path = os.path.join(home_dir,'Models','lstm_{}_model_units_{}_lyrs_{}_epchs_{}_vs_{}_ws_{}_mc_{}.h5'.\
                   format(network_type, num_hidden_units, num_layers,  num_epochs, embed_vector_size, window_size, min_count))
     
-    #mode = 'train'
-    mode = 'evaluate'
+    mode = 'train'
+    #mode = 'evaluate'
     #mode = 'score'
     K.clear_session()
     with K.get_session() as sess:        
@@ -192,7 +191,7 @@ if __name__ == "__main__":
 
                 reader = DataReader(num_classes, vector_size =embed_vector_size) 
                 entityExtractor = EntityExtractor(reader, embedding_pickle_file)
-                entityExtractor.train(local_train_file_path, network_type = network_type, num_epochs=num_epochs, num_hidden_units = num_hidden_units, num_layers=num_layers)    
+                entityExtractor.train(train_file_local_path, network_type, num_epochs, num_hidden_units, num_layers)    
                 entityExtractor.save_tag_map(tag_to_idx_map_file)
 
                 #Save the model
@@ -201,7 +200,7 @@ if __name__ == "__main__":
                 # Evaluate the model
                 print("Evaluating the model...")
 
-                reader = DataReader(num_classes, max_seq_length=max_seq_length, tag_to_idx_map_file=tag_to_idx_map_file, vector_size=embed_vector_size)   
+                reader = DataReader(num_classes, max_seq_length, tag_to_idx_map_file, vector_size=embed_vector_size)   
                 entityExtractor = EntityExtractor(reader, embedding_pickle_file)
 
                 #load the model
@@ -209,20 +208,20 @@ if __name__ == "__main__":
                 entityExtractor.load(model_file_path)
                 entityExtractor.print_summary()                
                 
-                confusion_matrix = entityExtractor.evaluate_model(local_test_file_path)
+                confusion_matrix = entityExtractor.evaluate_model(test_file_local_path)
                 print(confusion_matrix)
             elif mode == 'score':
                 print("Starting the model prediction ...")
 
-                reader = DataReader(num_classes, max_seq_length=max_seq_length, tag_to_idx_map_file=tag_to_idx_map_file, vector_size=embed_vector_size) 
+                reader = DataReader(num_classes, max_seq_length, tag_to_idx_map_file, vector_size=embed_vector_size) 
                 entityExtractor = EntityExtractor(reader, embedding_pickle_file)
                 
                  #load the model
                 print("Loading the model from file {} ...".format(model_file_path))
                 entityExtractor.load(model_file_path)
-                entityExtractor.print_summary()     
+                entityExtractor.print_summary()
 
-                predicted_tags = entityExtractor.predict_2(local_data_file_path)
+                predicted_tags = entityExtractor.predict_2(data_file_local_path)
                 if not os.path.exists("C:\dl4nlp\output"):
                     os.makedirs("C:\dl4nlp\output")
 

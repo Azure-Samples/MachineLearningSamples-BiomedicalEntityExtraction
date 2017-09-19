@@ -21,6 +21,7 @@ dependencies:
     # https://github.com/Azure/Machine-Learning-Operationalization
     - azure-ml-api-sdk==0.1.0a6
 	- h5py==2.7.0
-    - matplotlib
+  - matplotlib
 	- fastparquet
 	- keras
+  - azure-storage

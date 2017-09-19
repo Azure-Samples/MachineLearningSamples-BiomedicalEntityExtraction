@@ -157,23 +157,27 @@ In the next two sections we show how to complete configuration of remote docker 
 
 #### Configuration of remote Docker container
 
- To set up a remote Docker container, run in CLI
+ To set up a remote Docker container, run the following command in the CLI:
 
-    az ml computetarget attach --name dsvm --address <IP address> --username <username> --password <password> --type remotedocker
+    az ml computetarget attach --name my-dsvm-env --address <IP address> --username <username> --password <password> --type remotedocker
 
 with IP address, user name and password in DSVM. IP address of DSVM can be found in Overview section of your DSVM page in Azure portal:
 
 ![VM IP](./docs/images/vm_ip.png)
 
+This command creates two files my-dsvm-env.compute and my-dsvm-env.runconfig under aml_config folder.
+
 #### Configuration of Spark cluster
 
-To set up Spark environment, run in CLI
+To set up Spark environment, run the following command in the CLI:
 
     az ml computetarget attach --name my-spark-env --address <cluster name>-ssh.azurehdinsight.net  --username <username> --password <password> --type cluster
 
 with the name of the cluster, cluster's SSH user name and password. The default value of SSH user name is `sshuser`, unless you changed it during provisioning of the cluster. The name of the cluster can be found in Properties section of your cluster page in Azure portal:
 
 ![Cluster name](./docs/images/cluster_name.png)
+
+This command creates two files my-spark-env.compute and my-spark-env.runconfig under aml_config folder.
 
 The step-by-step data science workflow is as follows:
 ### 1. [Data Acquisition and Understanding](./code/01_data_acquisition_and_understanding/ReadMe.md)

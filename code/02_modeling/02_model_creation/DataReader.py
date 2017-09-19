@@ -1,6 +1,8 @@
 # %%writefile DataReader.py
 from keras.preprocessing import sequence
 import numpy as np
+import nltk
+
 #Pytnon 2
 #import cPickle as cpickle
 
@@ -208,24 +210,23 @@ class DataReader:
     ############################################################################## 
     #  READ TEST DATA  
     ############################################################################## 
-    def read_and_parse_test_data (self, test_file, skip_unknown_words = False):
+    def read_and_parse_test_data (self, test_file, skip_unknown_words = False):       
         
         print("Loading test data from file {}".format(test_file))
-        with open(test_file, 'r') as f_test:
-            
+        with open(test_file, 'r') as f_test:            
             self.n_tag_classes = self.DEFAULT_N_CLASSES
             tag_class_id = 0 
-            raw_data_test = []
-            raw_words_test = []
-            raw_tags_test = []        
+            data_set = []            
+            sentence_words = []
+            sentence_tags = []        
 
             # Process all lines in the file
             for line in f_test:
                 line = line.strip()
                 if not line:
-                    raw_data_test.append( (tuple(raw_words_test), tuple(raw_tags_test)))
-                    raw_words_test = []
-                    raw_tags_test = []
+                    data_set.append( (tuple(sentence_words), tuple(sentence_tags)))
+                    sentence_words = []
+                    sentence_tags = []
                     continue
                 
                 word, tag = line.split('\t') 
@@ -238,28 +239,19 @@ class DataReader:
                 #    self.tag_vector_map[tuple(one_hot_vec)] = tag
                 #    tag_class_id += 1
                 
-                raw_words_test.append(word)
-                raw_tags_test.append(tag)                
+                sentence_words.append(word)
+                sentence_tags.append(tag)                
                                     
-        print("number of test examples = " + str(len(raw_data_test)))   
-        self.n_sentences_all = len(raw_data_test)
-
-        # Find the maximum sequence length for Test Data
-        #self.max_sentence_len_test = 0
-        #for seq in raw_data_test:
-        #    if len(seq[0]) > self.max_sentence_len_test:
-        #        self.max_sentence_len_test = len(seq[0])
-                
-#         #Find the maximum sequence length in both training and Testing dataset
-#         self.max_sentence_len = max(self.max_sentence_len_train, self.max_sentence_len_test)               
-        
-        ########################Create TEST Feature Vectors##########################
+        print("number of test examples = " + str(len(data_set)))   
+        self.n_sentences_all = len(data_set)
+    
+        #Create TEST feature vectors
         all_X_test, all_Y_test = [], []
-
+        num_tokens_list = []
         unk_words = []
         count = 0
-        for word_seq, tag_seq in raw_data_test:  
-            
+
+        for word_seq, tag_seq in data_set:              
             if len(word_seq) > self.max_sentence_len_train:
                print("skip the extra words in the long sentence")
                word_seq = word_seq[:self.max_sentence_len_train]
@@ -290,6 +282,7 @@ class DataReader:
             # Pad the sequences for missing entries to make them all the same length
             nil_X = self.zero_vec_pos
             nil_Y = np.array(self.tag_to_vector_map['NONE'])
+            num_tokens_list.append(len(elem_wordvecs))
             pad_length = self.max_sentence_len_train - len(elem_wordvecs)
             all_X_test.append( ((pad_length)*[nil_X]) + elem_wordvecs)
             all_Y_test.append( ((pad_length)*[nil_Y]) + elem_tags)
@@ -303,15 +296,13 @@ class DataReader:
         
         print("Done")
         
-        return (all_X_test, all_Y_test)
-                                         
+        return (all_X_test, all_Y_test, data_set, num_tokens_list)                                         
         
         
      ##########################
      #  READ UNLABELED DATA  
      ########################## 
-    def preprocess_unlabeled_data_2 (self, data_file, skip_unknown_words = False):
-        import nltk
+    def preprocess_unlabeled_data_2 (self, data_file, skip_unknown_words = False):        
 
         print("Loading unlabeled data from file {}".format(data_file))
         with open(data_file, 'r') as f_data:                                    
@@ -336,8 +327,7 @@ class DataReader:
     ##########################
     #  READ UNLABELED DATA  
     ########################## 
-    def preprocess_unlabeled_data_1 (self, data_list, skip_unknown_words = False):
-        import nltk
+    def preprocess_unlabeled_data_1 (self, data_list, skip_unknown_words = False):        
 
         print("Reading unlabeled data from dataframe")   
         # list of list of tokens

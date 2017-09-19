@@ -170,8 +170,8 @@ class EntityExtractor:
         return predicted_tags
     
     def evaluate_model(self, test_file):
-               
-        test_X, test_Y = self.reader.read_and_parse_test_data(test_file)
+        print("evaluate_model - Begin")
+        test_X, test_Y, data_set, num_tokens_list = self.reader.read_and_parse_test_data(test_file)
         
         print("Data Shape: ")        
         print(test_X.shape)
@@ -181,47 +181,84 @@ class EntityExtractor:
         predicted_tags= []
         target_tags = []
         ind = 0
-        for x,y in zip(test_X, test_Y):
-            tags = self.model.predict(np.array([x]), batch_size=1)[0]
-            pred_tags = self.reader.decode_prediction_sequence(tags)
-            target_tags = self.reader.decode_prediction_sequence(y)
+        #for each line
+        for x,y,data_point, num_tokens in zip(test_X, test_Y, data_set, num_tokens_list):
             ind += 1
             ### To see Progress ###
-            if ind%500 == 0: 
-                print("Sentence" + str(ind))
+            if ind % 500 == 0: 
+                print("processing sentences = " + str(ind))
 
-            pred_tag_wo_none = []
-            target_tags_wo_none = []
+            tags = self.model.predict(np.array([x]), batch_size=1)[0]
+            sent_predicted_tags = self.reader.decode_prediction_sequence(tags)
+            sent_target_tags = self.reader.decode_prediction_sequence(y)
             
-            
-            for index, test_tag in enumerate(target_tags):
-                if test_tag != "NONE":
-                    if pred_tags[index] == "B-Chemical":
-                        pred_tag_wo_none.append("B-Drug")
-                    elif pred_tags[index] == "I-Chemical":
-                        pred_tag_wo_none.append("I-Drug")
-                    elif pred_tags[index] == 'None':
-                        pred_tag_wo_none.append('O')
+            #remove padding
+            sent_predicted_tags = sent_predicted_tags[-num_tokens:]
+            sent_target_tags = sent_target_tags[-num_tokens:]
+
+            if len(sent_target_tags) != num_tokens or \
+                len(sent_predicted_tags) != num_tokens:
+                print("stop here ............")
+
+            for index in range(0, num_tokens):
+                target_tag = sent_target_tags[index]
+                pred_tags = sent_predicted_tags[index]
+
+                if target_tag != "NONE":
+                    if pred_tags == "B-Chemical":
+                        predicted_tags.append("B-Drug")
+                    elif pred_tags == "I-Chemical":
+                        predicted_tags.append("I-Drug")
+                    elif pred_tags == 'None':
+                        predicted_tags.append('O')
                     else:
-                        pred_tag_wo_none.append(pred_tags[index])
+                        predicted_tags.append(pred_tags[index])
                         
-                    if test_tag == "B-Chemical":
-                        target_tags_wo_none.append("B-Drug")
-                    elif test_tag == "I-Chemical":
-                        target_tags_wo_none.append("I-Drug")
+                    if target_tag == "B-Chemical":
+                        target_tags.append("B-Drug")
+                    elif target_tag == "I-Chemical":
+                        target_tags.append("I-Drug")
                     else:                        
-                        target_tags_wo_none.append(test_tag)
+                        target_tags.append(target_tag)
 
-            
-                for target_tag,predicted_tag in zip(target_tags_wo_none, pred_tag_wo_none):
-                    f.write(str(target_tag) + '\t' + str(predicted_tag) + '\n')                                    
-            
+      
+            ##for each token
+            for target_tag, predicted_tag, word in zip(sent_target_tags, sent_predicted_tags, list(data_point[0])):
+                f.write(word + '\t' + str(target_tag) + '\t' + str(predicted_tag) + '\n')                                             
+            f.write("\n")
 
-            for i,j in zip(pred_tags, target_tags):
-                if i != "NONE" and j != "NONE":
-                    target_tags.append(j)
-                    predicted_tags.append(i)       
-        f.close
+            #pred_tags_wo_none = []
+            #target_tags_wo_none = []            
+            ##for each token
+            #for index, target_tag in enumerate(target_tags):
+            #    if target_tag != "NONE":
+            #        if pred_tags[index] == "B-Chemical":
+            #            pred_tags_wo_none.append("B-Drug")
+            #        elif pred_tags[index] == "I-Chemical":
+            #            pred_tags_wo_none.append("I-Drug")
+            #        elif pred_tags[index] == 'None':
+            #            pred_tags_wo_none.append('O')
+            #        else:
+            #            pred_tags_wo_none.append(pred_tags[index])
+                        
+            #        if target_tag == "B-Chemical":
+            #            target_tags_wo_none.append("B-Drug")
+            #        elif target_tag == "I-Chemical":
+            #            target_tags_wo_none.append("I-Drug")
+            #        else:                        
+            #            target_tags_wo_none.append(target_tag)
+            
+            #for target_tag, predicted_tag, word in zip(target_tags_wo_none, pred_tags_wo_none, list(data_point[0])):
+            #    f.write(word + '\t' + str(target_tag) + '\t' + str(predicted_tag) + '\n')                                             
+            #f.write("\n")
+
+            #for i,j in zip(pred_tags, target_tags):
+            #    if i != "NONE" and j != "NONE":
+            #        target_tags.append(j)
+            #        predicted_tags.append(i)       
+
+        f.close()
+
         predicted_tags = np.array(predicted_tags)
         target_tags = np.array(target_tags)
         print(classification_report(target_tags, predicted_tags))
@@ -233,4 +270,5 @@ class EntityExtractor:
             conf_matrix[y] = x
         conf_matrix = conf_matrix.transpose()
         
+        print("evaluate_model - End")
         return conf_matrix
