@@ -3,8 +3,7 @@
 
 ### Objective
 
-The aim of the [companion script](2_Train_Word2Vec_Model_Spark.py) is to show how to train a word embeddings model using **Spark** distributed implementation of **[Word2Vec](https://arxiv.org/pdf/1301.3781.pdf)** learning algorithm from [Spark MLLib](https://spark.apache.org/docs/latest/mllib-feature-extraction.html#word2vec). The MLLib function for Word2Vec is based on a continuous skip-gram model that tries to predict the context words given a word. To optimse the performance, this implementation uses hierarchical softmax. H-SoftMax essentially replaces the flat SoftMax layer with a hierarchical layer that has the words as leaves. This allows us to decompose calculating the probability of one word into a sequence of probability calculations, which saves us from having to calculate the expensive normalization over all words. The algorithm has several hyper-parameters which can be tuned to obtain better performance. These are windowSize, vectorSize etc. (We 
-define the meaning of each parameter in step 5). results for hyper parameter tuning are present in the end. Let's begin extracting word embeddings for Bio-medical terms.
+The aim of the [companion script](2_Train_Word2Vec_Model_Spark.py) is to show how to train a word embeddings model using **Spark** distributed implementation of **[Word2Vec](https://arxiv.org/pdf/1301.3781.pdf)** learning algorithm from [Spark MLLib](https://spark.apache.org/docs/latest/mllib-feature-extraction.html#word2vec). The MLLib function for Word2Vec is based on a continuous skip-gram model that tries to predict the context words given a word. To optimse the performance, this implementation uses hierarchical softmax. H-SoftMax essentially replaces the flat SoftMax layer with a hierarchical layer that has the words as leaves. This allows us to decompose calculating the probability of one word into a sequence of probability calculations, which saves us from having to calculate the expensive normalization over all words. The algorithm has several hyper-parameters which can be tuned to obtain better performance. These are windowSize, vectorSize etc. (We define the meaning of each parameter in step 5). results for hyper parameter tuning are present in the end. Let's begin extracting word embeddings for Bio-medical terms.
 
 ### Execution Steps 
 We are going to use the PubMed abstract data prepared in the [Data Acquisition and Understanding Phase](../../01_data_acquisition_and_understanding/1_Download_and_Parse_XML_Spark.py)
@@ -29,11 +28,10 @@ We are going to use the PubMed abstract data prepared in the [Data Acquisition a
 To run this script into the HDInsight Spark cluster, 
 1. Run the Azure ML Workbench installed into your DS VM.
 2. Open command line window (CLI) by clicking File menu in the top left corner of AML Workbench and choosing "Open Command Prompt." 
-3. Then run the following command in the CLI window:
+3. Then run the following command in the CLI window where my-spark-env is the Spark environment defined in the [configuration step](../../ReadMe.md):
 ```
     aaz ml experiment submit -c my-spark-env 2_Train_Word2Vec_Model_Spark.py   
 ```
-    where my-spark-env is the Spark environment defined in the [configuration step](../../ReadMe.md).
     
 ### Notes:
 

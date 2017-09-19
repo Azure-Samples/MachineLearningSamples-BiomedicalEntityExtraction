@@ -20,8 +20,8 @@ dependencies:
     # This is the operationalization API for Azure Machine Learning. Details:
     # https://github.com/Azure/Machine-Learning-Operationalization
     - azure-ml-api-sdk==0.1.0a6
-	- h5py==2.7.0
-  - matplotlib
-	- fastparquet
-	- keras
-  - azure-storage
+    - h5py==2.7.0
+    - matplotlib
+    - fastparquet
+    - keras
+    - azure-storage

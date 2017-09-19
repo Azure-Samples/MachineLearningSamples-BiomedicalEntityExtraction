@@ -26,13 +26,13 @@ The upload of the files takes several minutes, depending on your Internet connec
 * preprocess the abstract text including sentence splitting, tokenization and case normalization.
 * exclude articles where abstract field is empty or has short text 
 * create the word vocabulary from the training abstracts
-* train the word embedding neural model. For more details, refer to [GitHub code link](../02_modeling/01_feature_engineering/ReadMe.md) to get started.
+* train the word embedding neural model. You can refer to this [Python script](../01_feature_engineering/2_Train_Word2Vec_Model_Spark.py) and its [documentation](../01_feature_engineering/ReadMe.md) to get started.
 
 After parsing the Medline XML files, each data record has the following format: 
 
 ![Data Sample](../../docs/images/datasample.png)
 
-The neural entity extraction model has been trained and evaluated on publiclly available datasets. To obtain a detailed description about these datasets, you could refer to the following sources:
+The neural entity extraction model has been trained and evaluated on publicly available datasets. To obtain a detailed description about these datasets, you could refer to the following sources:
  * [Bio-Entity Recognition Task at BioNLP/NLPBA 2004](http://www.nactem.ac.uk/tsujii/GENIA/ERtask/report.html)
  * [BioCreative V CDR task corpus](http://www.biocreative.org/tasks/biocreative-v/track-3-cdr/)
  * [Semeval 2013 - Task 9.1 (Drug Recognition)](https://www.cs.york.ac.uk/semeval-2013/task9/)
@@ -46,7 +46,8 @@ To run this script into the HDInsight Spark cluster,
 ```
     az ml experiment submit -c my-spark-env 1_Download_and_Parse_XML_Spark.py   
 ```
-    where my-spark-env is the Spark environment defined in the [configuration step](../../ReadMe.md).
+
+   where my-spark-env is the Spark environment defined in the [configuration step](../../ReadMe.md).
 
 ### Notes
 - There are more that 800 XML files that are present on the Medline ftp server. The shared code downloads them all which takes a long time. If you just want to test the code, you can change that and download only a subsample.
