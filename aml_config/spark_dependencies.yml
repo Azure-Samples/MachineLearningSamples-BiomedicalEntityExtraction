@@ -13,7 +13,7 @@ repositories:
 packages:
   - group: "com.microsoft.ml.spark"
     artifact: "mmlspark_2.11"
-    version: "0.7"
+    version: "0.7.91"
   - group: "com.microsoft.sqlserver"
     artifact: "mssql-jdbc"
     version: "6.2.1.jre8"
