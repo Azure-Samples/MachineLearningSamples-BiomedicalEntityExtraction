@@ -1,5 +1,5 @@
 type: "localdocker"
-baseDockerImage: "microsoft/mmlspark:0.7"
+baseDockerImage: "microsoft/mmlspark:0.7.91"
 
 # Enabling Docker shared volumes will increase increase execution performance,
 # and enable automatic mounting of the shared directory, but the shared volume
