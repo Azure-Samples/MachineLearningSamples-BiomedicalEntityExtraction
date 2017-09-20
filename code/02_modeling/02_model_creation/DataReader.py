@@ -2,7 +2,7 @@
 from keras.preprocessing import sequence
 import numpy as np
 import nltk
-
+from nltk.tokenize import sent_tokenize
 #Pytnon 2
 #import cPickle as cpickle
 
@@ -307,18 +307,18 @@ class DataReader:
         print("Loading unlabeled data from file {}".format(data_file))
         with open(data_file, 'r') as f_data:                                    
             all_sentences_words = []
-            sentence_words = []      
+                 
 
             # Process all lines in the file
             for line in f_data:
-                line = line.strip()                
-                
+                text = line.strip()                                
+
                 #TODO: break the input text into sentences before tokenization
+                sentences = sent_tokenize(text)
                 #words = line.split()                 
-                
-                sentence_words = nltk.word_tokenize(line)             
-                
-                all_sentences_words.append( tuple(sentence_words) )               
+                for sent in sentences:
+                    sentence_words = nltk.word_tokenize(sent)                             
+                    all_sentences_words.append( tuple(sentence_words) )                                                           
                                     
         print("number of unlabeled examples = " + str(len(all_sentences_words)))
         self.n_sentences_all = len(all_sentences_words)        
@@ -335,14 +335,14 @@ class DataReader:
 
         # Process all lines in the file
         for line in data_list:
-            line = line.strip()                                
+            text = line.strip()                                
 
             #TODO: break the input text into sentences before tokenization
+            sentences = sent_tokenize(text)
             #words = line.split()                 
-                
-            sentence_words = nltk.word_tokenize(line)              
-                
-            all_sentences_words.append( tuple(sentence_words) )               
+            for sent in sentences:
+                sentence_words = nltk.word_tokenize(sent)                             
+                all_sentences_words.append( tuple(sentence_words) )                                                         
                                     
         print("number of unlabeled examples = " + str(len(all_sentences_words)))
         self.n_sentences_all = len(all_sentences_words)        

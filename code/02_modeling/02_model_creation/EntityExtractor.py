@@ -63,12 +63,6 @@ class EntityExtractor:
         
         train_X, train_Y = self.reader.read_and_parse_training_data(train_file)       
 
-#         self.train_X = self.all_X_train
-#         self.train_Y = self.all_Y_train
-        
-#         self.test_X = self.all_X_test
-#         self.test_Y = self.all_Y_test
-
         print("Data Shape: ")
         print(train_X.shape)
         print(train_Y.shape)        

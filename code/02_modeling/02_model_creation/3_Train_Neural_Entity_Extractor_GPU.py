@@ -25,6 +25,7 @@ import shutil
 import fastparquet
 import pickle
 import tensorflow
+import h5py
 from tensorflow.python.client import device_lib
 print(device_lib.list_local_devices())
 tensorflow.device('/gpu:0')
@@ -41,56 +42,49 @@ from EntityExtractor import EntityExtractor
 #   save_embeddings_to_pickle_file
 #   Generate the Embedding Matrix from Parquet files on the Container linked to your Spark Cluster
 #########################################################
-def download_embedding_parquet_files_from_storage():
+def download_embedding_parquet_files_from_storage(embedding_full_path, embedding_relative_path, num_parquet_files = 1000):
     
     timestart = datetime.datetime.now()
 
-    block_blob_service = BlockBlobService(account_name = storage_account_name, account_key = storage_account_key)    
+     #Azure BLOB Storage account information
+    storage_account_name = '76f8577bf451dsvm'
+    storage_account_key ='5DPDh+p3Xbg9BfS9d/OSrtQ/Utrat1Rr/NRrGU+x3cRYPZYi6B92WEWUIkM28Z8cGRsRz0cuSGb2mjyBCB0QXg=='
+    storage_container_name ='dl4nlp-container'    
     
-    #Specify the string to look for in blob names from your container
-    embedding_relative_path = "Models/word2vec_pubmed_model_vs_{}_ws_{}_mc_{}_parquet_files".\
-        format(embed_vector_size, window_size, min_count)
 
-    embedding_full_path = os.path.join(home_dir, embedding_relative_path)
-    print("embedding_full_path= {}".format(embedding_full_path))
+    block_blob_service = BlockBlobService(account_name = storage_account_name, account_key = storage_account_key)          
 
     if os.path.exists(embedding_full_path):
         shutil.rmtree(embedding_full_path)
 
     os.makedirs(embedding_full_path)
-            
-    num_parquet_files = 0
+
+    count = 0
     generator = block_blob_service.list_blobs(storage_container_name)
     for blob in generator:      
         if embedding_relative_path in blob.name and blob.name.endswith(".parquet"):              
-            num_parquet_files = num_parquet_files +1
+            count = count +1
             filename = blob.name.split("/")[-1]
             block_blob_service.get_blob_to_path(storage_container_name, blob.name, os.path.join(embedding_full_path,filename))      
-            
-    print ("Reading {} parquet files".format(num_parquet_files))
+
+        if count == num_parquet_files:
+          break
+
+    print ("Reading {} parquet files".format(count))
     timeend = datetime.datetime.now()
     timedelta = round((timeend-timestart).total_seconds() / 60, 2)
     print ("Time taken to execute the download_embedding_parquet_files_from_storage function: " + str(timedelta) + " mins")
     
-    return (embedding_full_path)  
+    print ("Done")  
 #########################################################
 #   save_embeddings_to_pickle_file
 #########################################################
-def save_embeddings_to_pickle_file():
+def save_embeddings_to_pickle_file(embedding_full_path,embedding_pickle_file, embed_vector_size):
         import pandas 
         import datetime
         timestart = datetime.datetime.now()
 
-        print ("Embedding vector size =", embed_vector_size)
-        embedding_relative_path = "Models/word2vec_pubmed_model_vs_{}_ws_{}_mc_{}_parquet_files".\
-            format(embed_vector_size, window_size, min_count)
-
-        embedding_full_path = os.path.join(home_dir, embedding_relative_path)
-        print("embedding_full_path= {}".format(embedding_full_path))
-
-        embedding_pickle_file = os.path.join(home_dir, "Models/w2vmodel_pubmed_vs_{}_ws_{}_mc_{}.pkl" \
-            .format(embed_vector_size, window_size, min_count))
-
+        print ("Embedding vector size =", embed_vector_size)      
         Word2Vec_Model = {}
 
         print("Reading the Parquet embedding files .... {}".format(embedding_full_path))
@@ -123,59 +117,47 @@ def save_embeddings_to_pickle_file():
         timeend = datetime.datetime.now()
         timedelta = round((timeend-timestart).total_seconds() / 60, 2)
         print ("Time taken to execute the save_embeddings_to_pickle_file function: " + str(timedelta) + " mins")
-        return(embedding_pickle_file)
+        print ("Done.")
 
-##############################################################
-# #### Copy the Training Data, Testing Data, Evaluation Script to destination location
-##############################################################
-def download_data_from_storage():
-    
-    block_blob_service = BlockBlobService(account_name = storage_account_name, account_key = storage_account_key)
 
-    generator = block_blob_service.list_blobs(storage_container_name)
-
-    if not os.path.exists(os.path.join(home_dir, data_folder)):
-        os.makedirs(os.path.join(home_dir, data_folder))   
-        
-    block_blob_service.get_blob_to_path(storage_container_name, train_file_relative_path, train_file_local_path)
-    block_blob_service.get_blob_to_path(storage_container_name, test_file_relative_path, test_file_local_path)
-
-    return (train_file_local_path, test_file_local_path)
-
-# #### Step 4 Train the network on the prepared data and obtain the predictions on the test set
-
-if __name__ == "__main__":
+################################################################################### 
+#  Train the network on the prepared data and obtain the predictions on the test set
+###################################################################################
+def main():
     print("Running on BIO-NLP data\n\n")    
     #Specify the path where to store the downloaded files    
     home_dir = "C:\\dl4nlp" 
-    print("home_dir = {}".format(home_dir))
+    print("home_dir = {}".format(home_dir))   
    
-
-    #Azure BLOB Storage account information
-    storage_account_name = '76f8577bf451dsvm'
-    storage_account_key ='5DPDh+p3Xbg9BfS9d/OSrtQ/Utrat1Rr/NRrGU+x3cRYPZYi6B92WEWUIkM28Z8cGRsRz0cuSGb2mjyBCB0QXg=='
-    storage_container_name ='dl4nlp-container'    
-    
     window_size = 5
     embed_vector_size = 50
     min_count =1000
-    #download_embedding_parquet_files_from_storage()
-    embedding_pickle_file = save_embeddings_to_pickle_file()
+
+    #Specify the string to look for in blob names from your container
+    embedding_folder_name = "word2vec_pubmed_model_vs_{}_ws_{}_mc_{}_parquet_files".\
+        format(embed_vector_size, window_size, min_count)
+
+    embedding_full_path = os.path.join(home_dir, "models", embedding_folder_name)
+    print("embedding_full_path= {}".format(embedding_full_path))
+                
+    num_parquet_files = 1000
+    #download_embedding_parquet_files_from_storage(embedding_full_path, embedding_folder_name, num_parquet_files)  
     
-    #embedding_pickle_file = os.path.join(home_dir, "Models/w2vmodel_pubmed_vs_{}_ws_{}_mc_{}.pkl" \
+    embedding_pickle_file = os.path.join(home_dir, "Models/w2vmodel_pubmed_vs_{}_ws_{}_mc_{}.pkl" \
+        .format(embed_vector_size, window_size, min_count))
+
+    #save_embeddings_to_pickle_file(embedding_full_path,embedding_pickle_file, embed_vector_size)
+    
+    #embedding_pickle_file = os.path.join(home_dir, "models","w2vmodel_pubmed_vs_{}_ws_{}_mc_{}.pkl" \
     #        .format(embed_vector_size, window_size, min_count))
 
-    # Read the data
-    #train_file_local_path = os.path.join(home_dir, train_file_relative_path)
-    #test_file_local_path = os.path.join(home_dir, test_file_relative_path)
-    #data_file_local_path = os.path.join(home_dir, data_file_relative_path)
-    #train_file_local_path, test_file_local_path = download_data_from_storage()  
-    data_folder = os.path.join("sample_data","drugs_and_diseases/")
+    # Read the data    
+    data_folder = os.path.join("sample_data","drugs_and_diseases")
     train_file_local_path = os.path.join(data_folder, "Drug_and_Disease_train.txt")
     test_file_local_path = os.path.join(data_folder, "Drug_and_Disease_test.txt")    
     #data_file_relative_path= os.path.join(data_folder, "unlabeled_test_sample.txt")
 
-    tag_to_idx_map_file = os.path.join(home_dir, "Models", "tag_map.tsv")
+    tag_to_idx_map_file = os.path.join(home_dir, "models", "tag_map.tsv")
 
     # Train the model        
     #network_type= 'unidirectional'
@@ -202,11 +184,17 @@ if __name__ == "__main__":
         with graphr.as_default():                        
 
             if mode == 'train':
-                print("Training the model... num_epochs = {}, num_layers = {}".format(num_epochs, num_layers))
+                print("Training the model... num_epochs = {}, num_layers = {}, num_hidden_units = {}".\
+                      format(num_epochs, num_layers,num_hidden_units))
 
                 reader = DataReader(num_classes, vector_size =embed_vector_size) 
                 entityExtractor = EntityExtractor(reader, embedding_pickle_file)
-                entityExtractor.train(train_file_local_path, network_type, num_epochs, num_hidden_units, num_layers)    
+               
+                entityExtractor.train (train_file_local_path, network_type = network_type, \
+                       num_epochs = num_epochs, \
+                       num_hidden_units = num_hidden_units, \
+                       num_layers = num_layers)
+
                 entityExtractor.save_tag_map(tag_to_idx_map_file)
 
                 #Save the model
@@ -250,7 +238,10 @@ if __name__ == "__main__":
     K.clear_session()
     K.set_session(None)
     print("Done.")     
-    
+   
+if __name__ == "__main__":
+    main()
+
 '''
 
 # #### Step 5 Generate the output of the model in the correct format for evaluation

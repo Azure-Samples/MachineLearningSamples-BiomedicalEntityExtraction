@@ -6,16 +6,28 @@ from keras.models import load_model
 from DataReader import DataReader
 from EntityExtractor import EntityExtractor
 import h5py
+import tensorflow
+from tensorflow.python.client import device_lib
+print(device_lib.list_local_devices())
+tensorflow.device('/cpu:0')
+
+from azureml.api.schema.dataTypes import DataTypes
+from azureml.api.schema.sampleDefinition import SampleDefinition
+from azureml.api.realtime.services import generate_schema
+import pandas
+import nltk 
+nltk.download('popular')
 
 logger = logging.getLogger("stmt_logger")
 ch = logging.StreamHandler(sys.stdout)
 logger.addHandler(ch)
 
-'''
-Here is the CLI command to create a realtime scoring web service
-cd code\03_deployment
-az ml service create realtime -n extract-biomedical-entities -f score.py -m c:\dl4nlp\models\lstm_bidirectional_model.h5 -s c:\dl4nlp\models\service-schema.json -r python -d c:\dl4nlp\models\w2vmodel_pubmed_vs_50_ws_5_mc_400.pkl -d c:\dl4nlp\models\tag_map.tsv -d ..\02_modeling\02_model_creation\DataReader.py -d ..\02_modeling\02_model_creation\EntityExtractor.py -c ..\..\aml_config\conda_dependencies.yml
-'''
+#Here is the CLI command to create a realtime scoring web service
+#cd code\03_deployment
+#az ml service create realtime -n extract-biomedical-entities -f score.py -m c:\dl4nlp\models\lstm_bidirectional_model.h5 -s c:\dl4nlp\models\service-schema.json -r python -d c:\dl4nlp\models\w2vmodel_pubmed_vs_50_ws_5_mc_400.pkl -d c:\dl4nlp\models\tag_map.tsv -d ..\02_modeling\02_model_creation\DataReader.py -d ..\02_modeling\02_model_creation\EntityExtractor.py -c ..\..\aml_config\conda_dependencies.yml
+
+#Here is the CLI command to run Kubernetes 
+#C:\Users\hacker\bin\kubectl.exe proxy --kubeconfig C:\Users\hacker\.kube\config
 def init():
     """ Initialise SD model
     """
@@ -29,9 +41,7 @@ def init():
     # define the word2vec embedding model hyperparameters
     window_size = 5
     vector_size = 50
-    min_count =400
-    #download_embedding_parquet_files_from_storage()
-    #embedding_pickle_file = save_embeddings_to_pickle_file()
+    min_count =400    
     
     embedding_pickle_file = os.path.join(home_dir, "w2vmodel_pubmed_vs_{}_ws_{}_mc_{}.pkl" \
             .format(vector_size, window_size, min_count))
@@ -86,21 +96,17 @@ def run(input_df):
 
     global entityExtractor
     start = t.default_timer()
-
+        
     # Generate Predictions
     pred = entityExtractor.predict_1(list(input_df["text"]))
     
     end = t.default_timer()
 
-    logger.info("Entity extraciton took {0} ms".format(round((end-start)*1000, 2)))
-        
+    logger.info("Entity extraciton took {0} ms".format(round((end-start)*1000, 2)))      
+
     return json.dumps(pred)
 
-def main():
-  from azureml.api.schema.dataTypes import DataTypes
-  from azureml.api.schema.sampleDefinition import SampleDefinition
-  from azureml.api.realtime.services import generate_schema
-  import pandas
+def main(): 
   
   df = pandas.DataFrame(data=[['text-value']], columns=['text'])
   text_data = {}
@@ -115,8 +121,8 @@ def main():
   print("Result: " + run(input1))
   
   inputs = {"input_df": SampleDefinition(DataTypes.PANDAS, df)}
-  # The prepare statement writes the scoring file (main.py) and
-  # the schema file (service_schema.json) the the output folder.
+  
+  # the schema file (service-schema.json) the the output folder.
   generate_schema(run_func=run, inputs=inputs, filepath='service-schema.json')
   print("Schema generated")
 
