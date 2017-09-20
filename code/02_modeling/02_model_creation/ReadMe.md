@@ -15,9 +15,21 @@ Once you have the embedding model ready you can start working on training the ne
 ### How to run this script
 
 #### 1. Execution in local environment 
-If you have Azure ML Workbench installed into your DS VM and would like to run this script locally into the DS VM, 
+If you have Azure ML Workbench installed into your DSVM and would like to run this script locally into the DSVM, 
 1. Run the Azure ML Workbench installed into your DS VM.
 2. Open command line window (CLI) by clicking File menu in the top left corner of AML Workbench and choosing "Open Command Prompt." 
+3. You have to install the dependencies listed in the conda_dependencies.yml file manually by running the following command in the CLI window:
+
+```
+    conda install tensorflow-gpu
+    conda install nltk
+    pip install h5py
+    pip install matplotlib
+    pip install fastparquet
+    pip install keras
+    pip install azure-storage
+```
+
 3. Then run the following command in the CLI window:
 ```
     az ml experiment submit -c local 3_Train_Neural_Entity_Extractor_GPU.py   

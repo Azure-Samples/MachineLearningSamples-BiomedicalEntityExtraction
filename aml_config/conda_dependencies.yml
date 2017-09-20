@@ -7,11 +7,15 @@
 # For Spark packages and configuration, see spark_dependencies.yml.
 
 name: project_environment
+channels:
+  - defaults
+  - conda-forge
 dependencies:
   - python=3.5.2
   # ipykernel is required to use the remote/docker kernels in Jupyter Notebook.
   - ipykernel=4.6.1
-  - tensorflow-gpu==1.2.0
+  - tensorflow-gpu
+  - fastparquet
   - nltk
   - requests
   - lxml
@@ -19,9 +23,9 @@ dependencies:
   - pip:
     # This is the operationalization API for Azure Machine Learning. Details:
     # https://github.com/Azure/Machine-Learning-Operationalization
-    - azure-ml-api-sdk==0.1.0a6
+    - azure-ml-api-sdk==0.1.0a11
     - h5py==2.7.0
     - matplotlib
-    - fastparquet
+    - scipy==1.0.0b1
     - keras
     - azure-storage

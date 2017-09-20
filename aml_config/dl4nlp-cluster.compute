@@ -1,4 +1,5 @@
 address: dl4nlp-cluster-ssh.azurehdinsight.net
-password: AzureMlSecret=dl4nlp-cluster#sshuser#3829ca9d06ef46189ab291b588ee7afa
+password: AzureMlSecret=dl4nlp-cluster#sshuser#a37db26ec8f44e5b9d836b111cf4c566
 type: cluster
 username: sshuser
+yarnDeployMode: cluster

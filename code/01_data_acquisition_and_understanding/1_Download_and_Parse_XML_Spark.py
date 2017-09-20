@@ -167,7 +167,7 @@ sc = SparkContext.getOrCreate()
 # sc = SparkContext(conf=conf)
 
 #Specify the path of the egg file
-sc.addPyFile('wasb:///pubmed_parser-0.1-py3.5.egg')
+#sc.addPyFile('wasb:///pubmed_parser-0.1-py3.5.egg')
 
 # directory
 home_dir = os.getcwd()
@@ -177,7 +177,7 @@ parse_results_remote_dir = os.path.join('wasb:///', 'pubmed_data', 'tsv_files')
 
 batch_size = 50
 num_xml_files = 892 
-print("\t\t1_Download_and_Parse_Medline_Abstracts.py")
+print("\t\t1_Download_and_Parse_XML_Spark.py")
 print("batch_size = {}, num_xml_files = {}".format(batch_size,num_xml_files) )
 download_xml_gz_files()
 process_files() 

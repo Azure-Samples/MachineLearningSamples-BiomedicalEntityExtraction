@@ -8,12 +8,13 @@
 
 configuration:
   "spark.app.name": "AzureML Experiment"
+  "spark.executor.memory": "8g"
 repositories:
   - "https://mmlspark.azureedge.net/maven"
 packages:
   - group: "com.microsoft.ml.spark"
     artifact: "mmlspark_2.11"
-    version: "0.7.91"
+    version: "0.7"
   - group: "com.microsoft.sqlserver"
     artifact: "mssql-jdbc"
     version: "6.2.1.jre8"

@@ -1,1 +1,10 @@
-{"Framework": "PySpark", "PrepareEnvironment": true, "Target": "dl4nlp-cluster", "CondaDependenciesFile": null, "ArgumentVector": ["$file"], "SparkDependenciesFile": null, "TrackedRun": true}
+ArgumentVector:
+- $file
+CondaDependenciesFile: aml_config/conda_dependencies.yml
+EnvironmentVariables: null
+Framework: PySpark
+PrepareEnvironment: true
+SparkDependenciesFile: aml_config/spark_dependencies.yml
+Target: dl4nlp-cluster
+TrackedRun: true
+UseSampling: true

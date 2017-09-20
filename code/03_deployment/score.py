@@ -11,7 +11,11 @@ logger = logging.getLogger("stmt_logger")
 ch = logging.StreamHandler(sys.stdout)
 logger.addHandler(ch)
 
-
+'''
+Here is the CLI command to create a realtime scoring web service
+cd code\03_deployment
+az ml service create realtime -n extract-biomedical-entities -f score.py -m c:\dl4nlp\models\lstm_bidirectional_model.h5 -s c:\dl4nlp\models\service-schema.json -r python -d c:\dl4nlp\models\w2vmodel_pubmed_vs_50_ws_5_mc_400.pkl -d c:\dl4nlp\models\tag_map.tsv -d ..\02_modeling\02_model_creation\DataReader.py -d ..\02_modeling\02_model_creation\EntityExtractor.py -c ..\..\aml_config\conda_dependencies.yml
+'''
 def init():
     """ Initialise SD model
     """
@@ -39,8 +43,8 @@ def init():
         print("The entity types index mapping file ({}) doesn't exist.".format(tag_to_idx_map_file))
 
     # define the LSTM model hyperparameters
-    network_type= 'unidirectional'
-    # network_type= 'bidirectional'
+    # network_type= 'unidirectional'
+    network_type= 'bidirectional'
     
     num_classes = 7 + 1
     max_seq_length = 613
@@ -48,9 +52,11 @@ def init():
     num_hidden_units = 300
     num_epochs = 10
 
-    model_file_path = os.path.join(home_dir,'Models','lstm_{}_model_units_{}_lyrs_{}_epchs_{}_vs_{}_ws_{}_mc_{}.h5'.\
-                  format(network_type, num_hidden_units, num_layers,  num_epochs, embed_vector_size, window_size, min_count))
+    #model_file_path = os.path.join(home_dir,'Models','lstm_{}_model_units_{}_lyrs_{}_epchs_{}_vs_{}_ws_{}_mc_{}.h5'.\
+    #              format(network_type, num_hidden_units, num_layers,  num_epochs, embed_vector_size, window_size, min_count))
     
+    model_file_path = os.path.join(home_dir,'lstm_{}_model.h5'.format(network_type))
+
     if not os.path.exists(model_file_path):
         print("The neural model file ({}) doesn't exist.".format(model_file_path))
 
@@ -111,7 +117,7 @@ def main():
   inputs = {"input_df": SampleDefinition(DataTypes.PANDAS, df)}
   # The prepare statement writes the scoring file (main.py) and
   # the schema file (service_schema.json) the the output folder.
-  generate_schema(run_func=run, inputs=inputs, filepath='service_schema.json')
+  generate_schema(run_func=run, inputs=inputs, filepath='service-schema.json')
   print("Schema generated")
 
 
