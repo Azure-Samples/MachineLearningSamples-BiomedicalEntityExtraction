@@ -41,9 +41,9 @@ If you have Azure ML Workbench installed into your desktop or laptop and would l
 2. Open command line window (CLI) by clicking File menu in the top left corner of AML Workbench and choosing "Open Command Prompt." 
 3. Then run the following command in the CLI window:
 ```
-    az ml experiment submit -c my-dsvm-env 3_Train_Neural_Entity_Extractor_GPU.py   
+    az ml experiment submit -c myvm 3_Train_Neural_Entity_Extractor_GPU.py   
 ```
-    where my-dsvm-env is the remote Docker container environment defined in the [configuration step](../../../ReadMe.md).
+    where myvm is the remote Docker container environment defined in the [configuration step](../../../ReadMe.md).
 
 ### Execution Steps 
 

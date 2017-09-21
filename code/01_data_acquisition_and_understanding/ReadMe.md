@@ -44,10 +44,10 @@ To run this script into the HDInsight Spark cluster,
 2. Open command line window (CLI) by clicking File menu in the top left corner of AML Workbench and choosing "Open Command Prompt." 
 3. Then run the following command in the CLI window:
 ```
-    az ml experiment submit -c my-spark-env 1_Download_and_Parse_XML_Spark.py   
+    az ml experiment submit -c myspark 1_Download_and_Parse_XML_Spark.py   
 ```
 
-   where my-spark-env is the Spark environment defined in the [configuration step](../../ReadMe.md).
+   where myspark is the Spark environment defined in the [configuration step](../../ReadMe.md).
 
 ### Notes
 - There are more that 800 XML files that are present on the Medline ftp server. The shared code downloads them all which takes a long time. If you just want to test the code, you can change that and download only a subsample.

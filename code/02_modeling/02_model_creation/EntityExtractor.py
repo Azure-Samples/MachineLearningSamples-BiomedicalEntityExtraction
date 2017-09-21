@@ -115,6 +115,10 @@ class EntityExtractor:
         #predicted_tags = np.array(predicted_tags)
         return predicted_tags
     
+    ######################
+    # predict_1
+    # read the data from the memory
+    #####################
     def predict_1(self, data_list):
         import json
         from collections import OrderedDict as odict
@@ -138,7 +142,11 @@ class EntityExtractor:
         
         #predicted_tags = np.array(predicted_tags)
         return predicted_tags
-
+    
+    ######################
+    # predict_2
+    # read the data from a file
+    #####################
     def predict_2(self, data_file):
         import json
         from collections import OrderedDict as odict
@@ -267,3 +275,55 @@ class EntityExtractor:
         
         print("evaluate_model - End")
         return conf_matrix
+
+
+    def evaluate_1(self):
+        target = open("Pubmed_Output.txt", 'w')
+        predicted_tags= []
+        test_data_tags = []
+        ind = 0
+        for x,y in zip(self.test_X, self.test_Y):
+            tags = self.model.predict(np.array([x]), batch_size=1)[0]
+            pred_tags = self.reader.decode_prediction_sequence(tags)
+            test_tags = self.reader.decode_prediction_sequence(y)
+            ind += 1
+            ### To see Progress ###
+            if ind%500 == 0: 
+                print("Sentence" + str(ind))
+
+            pred_tag_wo_none = []
+            test_tags_wo_none = []
+            
+            for index, test_tag in enumerate(test_tags):
+                if test_tag != "NONE":
+                    if pred_tags[index] == "B-Chemical":
+                        pred_tag_wo_none.append("B-Drug")
+                    elif pred_tags[index] == "I-Chemical":
+                        pred_tag_wo_none.append("I-Drug")
+                    elif pred_tags[index] == 'None':
+                        pred_tag_wo_none.append('O')
+                    else:
+                        pred_tag_wo_none.append(pred_tags[index])
+                        
+                    if test_tag == "B-Chemical":
+                        test_tags_wo_none.append("B-Drug")
+                    elif test_tag == "I-Chemical":
+                        test_tags_wo_none.append("I-Drug")
+                    else:                        
+                        test_tags_wo_none.append(test_tag)
+            
+            for wo in pred_tag_wo_none:
+                target.write(str(wo))
+                target.write("\n")
+            target.write("\n")
+            
+            for i,j in zip(pred_tags, test_tags):
+                if i != "NONE" and j != "NONE":
+                    test_data_tags.append(j)
+                    predicted_tags.append(i)
+
+        target.close()
+        
+        predicted_tags = np.array(predicted_tags)
+        test_data_tags = np.array(test_data_tags)
+        print(classification_report(test_data_tags, predicted_tags))

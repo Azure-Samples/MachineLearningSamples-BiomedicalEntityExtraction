@@ -99,7 +99,7 @@ class DataReader:
                     f_vectors.write("\n")
 
                     self.wordvecs.append(W2V_model[vocab[index]])
-                    f_words.write(word + "\n")
+                    f_words.write(str(self.word_to_ix_map[word]) + "\t" + word + "\n")
             
            
         self.wordvecs = np.array(self.wordvecs)
