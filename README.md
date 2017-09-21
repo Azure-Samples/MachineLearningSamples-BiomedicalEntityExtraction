@@ -70,7 +70,7 @@ The neural entity extraction model has been trained and evaluated on publiclly a
 * An Azure [subscription](https://azure.microsoft.com/en-us/free/)
 * Azure Machine Learning Workbench. See [installation guide](quick-start-installation.md). Currently the Azure Machine Learning Workbench can be installed on the following operating systems only: 
     * Windows 10 or Windows Server 2016
-    * macOS Sierra (or newer)
+    * macOS Sierra
 
 ### Azure services
 * To run this scenario with Spark cluster, provision [Azure HDInsight Spark cluster](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-apache-spark-jupyter-spark-sql) (Spark 2.1 on Linux (HDI 3.6)) for scale-out computation. To process the full amount of MEDLINE abstracts discussed below, We recommend having a cluster with:
