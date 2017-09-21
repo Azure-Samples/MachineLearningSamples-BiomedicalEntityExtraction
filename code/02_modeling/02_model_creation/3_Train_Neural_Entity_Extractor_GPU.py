@@ -141,15 +141,12 @@ def main():
     print("embedding_full_path= {}".format(embedding_full_path))
                 
     num_parquet_files = 1000
-    #download_embedding_parquet_files_from_storage(embedding_full_path, embedding_folder_name, num_parquet_files)  
+    download_embedding_parquet_files_from_storage(embedding_full_path, embedding_folder_name, num_parquet_files)  
     
     embedding_pickle_file = os.path.join(home_dir, "Models/w2vmodel_pubmed_vs_{}_ws_{}_mc_{}.pkl" \
         .format(embed_vector_size, window_size, min_count))
 
-    #save_embeddings_to_pickle_file(embedding_full_path,embedding_pickle_file, embed_vector_size)
-    
-    #embedding_pickle_file = os.path.join(home_dir, "models","w2vmodel_pubmed_vs_{}_ws_{}_mc_{}.pkl" \
-    #        .format(embed_vector_size, window_size, min_count))
+    save_embeddings_to_pickle_file(embedding_full_path,embedding_pickle_file, embed_vector_size)        
 
     # Read the data    
     data_folder = os.path.join("sample_data","drugs_and_diseases")
@@ -160,8 +157,8 @@ def main():
     tag_to_idx_map_file = os.path.join(home_dir, "models", "tag_map.tsv")
 
     # Train the model        
-    #network_type= 'unidirectional'
-    network_type= 'bidirectional'
+    network_type= 'unidirectional'
+    #network_type= 'bidirectional'
     #embed_vector_size = 50
     num_classes = 7 + 1
     max_seq_length = 613
@@ -174,8 +171,8 @@ def main():
     model_file_path = os.path.join(home_dir,'Models','lstm_{}_model_units_{}_lyrs_{}_epchs_{}_vs_{}_ws_{}_mc_{}.h5'.\
                   format(network_type, num_hidden_units, num_layers,  num_epochs, embed_vector_size, window_size, min_count))
     
-    mode = 'train'
-    #mode = 'evaluate'
+    #mode = 'train'
+    mode = 'evaluate'
     #mode = 'score'
     K.clear_session()
     with K.get_session() as sess:        
