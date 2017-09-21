@@ -3,124 +3,79 @@
 
 ### Objective
 
-The aim of the [companion script](score.py) is to show how to use Azure ML workbench to publish and operationalize the deep learning model (saved in hd5 format) previously trained in the [Model Creation Phase](02_modeling/02_model_creation/ReadMe.md) and to code as web service locally using a DSVM running on Azure. 
+The aim of the [companion script](score.py) is to show how to use Azure ML workbench to deploy and operationalize the deep learning model (saved in hd5 format)  trained in the [Model Creation Phase](02_modeling/02_model_creation/ReadMe.md). 
 
-## 2. Setup
+## 2. Steps
 
-Launch a Data Science Virtual Machine (Ubuntu) from portal.azure.com as shown below. Follow the steps to create the virtual machine on selection and ssh into the machine.
+### Local mode deployment
+Local mode deployment runs in Docker containers on your local computer, whether that is your personal machine or a VM running on Azure. You can use local mode for development and testing. The Docker engine must be running locally to complete the operationalization phase.  
 
-![DataScienceVirtualMachine](docs/images/ds-vm-creation.png)
+### Cluster mode deployment
 
-Pip is a better alternative to Easy Install for installing Python packages. To install pip on ubuntu run the bellow command:
-```
-sudo apt-get install python-pip
-```
-Only users with sudo access will be able to run docker commands. Optionally, add non-sudo access to the Docker socket by adding your user to the docker group.
+If you need to scale out your deployment or if you don't have Docker engine installed locally, you can choose to deploy the web service on a cluster. In cluster mode, your web service is hosted in the Azure Container Service (ACS). The operationalization environment provisions Docker and Kubernetes in the cluster to manage the web service deployment. Deploying to ACS allows you to scale your service as needed to meet your business needs. To provision an ACS cluster and deploy the web service into it, add the --cluster flag to the set up command. The number of agent VM nodes to provision in the ACS cluster can be specified using the argument --agent-count. For more information, enter the --help flag.
 
 ```
-sudo usermod -a - G docker $(whoami)
+az ml env setup -n dl4nlpenv -l eastus2 --cluster --agent-count 5
 ```
-
-If you encounter “locale.Error: unsupported locale setting” error, perform the below export:
-
-```
-export LC_ALL=C
-```
-
-Install azure-cli and azure-cli-ml using pip:
+The ACS cluster environment may take 10-20 minutes to be completely provisioned.
+To see if your environment is ready to use, run:
 
 ```
-pip install azure-cli
-pip install azure-cli-ml
+  az ml env show -g dl4nlpenvrg -n dl4nlpenv
 ```
 
-In addition, change python default version and run the following commands. Local mode deployments run in docker containers on your local computer, whether that is your personal machine or a VM running on Azure. You can use local mode for development and testing. 
+Once your environment has successfully provisioned, you can set it as your target context using:
+```
+  az ml env set -g dl4nlpenvrg -n dl4nlpenv
+```
+Now you are ready to operationalize the Keras TensorFlow LSTM model.
+To deploy the web service, you must have a model, a scoring script, and optionally a schema for the web service input data. The scoring script loads the model.h5 file from the current folder and uses it to extract the entity mentions in a given text. 
+
+We will use a schema file to help the web service parse the input data. To generate the schema file, simply execute the scoring script [score.py](score.py) that comes with the project under code/03_deployment in the command prompt using Python interpreter directly.
+
+Note: you must use Python to execute this script.
+
+C:\BiomedicalEntityExtraction\code\03_deployment> python [score.py](score.py)
+
+Running this file creates a service-schema.json  file. This file contains the schema of the web service input.
+
+Copy the following files into the same folder:
+* scoring_conda_dependencies.yml
+* lstm_bidirectional_model.h5
+* service-schema.json
+* [score.py](score.py)
+* w2vmodel_pubmed_vs_50_ws_5_mc_400.pkl
+* tag_map.tsv
+* [DataReader.py](../02_modeling/02_model_creation/DataReader.py)
+* [EntityExtractor.py](../02_modeling/02_model_creation/EntityExtractor.py)
+
+where the files lstm_bidirectional_model.h5 and tag_map.tsv are the output of the model creation phase, the embedding file w2vmodel_pubmed_vs_50_ws_5_mc_400.pkl is the output of the feature generation phase and the Python scripts DataReader.py and EntityExtractor.py comes with the project under code/02_modeling/02_model_creation.
+
+To create a realtime web service called extract-biomedical-entities, 
+1. Run the Azure ML Workbench installed into your DS VM.
+2. Open command line window (CLI) by clicking File menu in the top left corner of AML Workbench and choosing "Open Command Prompt."  
+3. change the current directory to the folder where you copied the above files. 
+4. Run following command.
 
 ```
-alias python=python3
-source ~/.bash_aliases
-az ml env setup
-source ~/.amlenvrc
-cat < ~/.amlenvrc >> ~/.bashrc
-```
-Upload the below files to the vm (you could use scp to perform the upload):
-conda_dependencies.yml
-sentModel.h5
-myschema.json
-senti_schema.py
-
-## 3. Image Creation
-
-Edit the conda_dependencies.yml to contain only the following dependencies:
-
-```
-dependencies:
-  - pip:
-    # This is the operationalization API for Azure Machine Learning. Details:
-    # https://github.com/Azure/Machine-Learning-Operationalization
-    - azure-ml-api-sdk
-    - keras
-    - scikit-learn
-    - pandas
-    - tensorflow
-    - h5py
+az ml service create realtime -n extract-biomedical-entities -f score.py -m lstm_bidirectional_model.h5 -s service-schema.json -r python -d w2vmodel_pubmed_vs_50_ws_5_mc_400.pkl -d tag_map.tsv -d DataReader.py -d EntityExtractor.py -c scoring_conda_dependencies.yml  
 ```
 
-We have removed ipykernel as we will not be needing it. 
+An example of a successful run of az ml service create looks as follows. 
 
-### Model Management
+![CreateService](../../docs/images/create_service_cli_screenshot.PNG)
 
-The real-time web service requires a modelmanagement account. This can be created using the following commands:
-```
-az group create -l <location> -n <name>
-az ml account modelmanagement create -l <location> -g <resource group> -n <account name>
-az ml account modelmanagement set -n <account name> -g <resource group>
-```
-
-The following command creates an image which can be used in any environment.
+In addition, you can also type the following command to list the created web services.
 
 ```
-az ml image create -n ads1 -v -c conda_dependencies.yml -m sentModel.h5 -s myschema.json -f senti_schema.py -r python
+az ml service list realtime
 ```
 
-![PuttyImage](Images/PuttyImage.png)
-
-You will find the image id displayed when you create the image. Use the image id in the next command to specify the image to use. 
+To test the service, execute the returned service run command.
 
 ```
-az ml image usage -i 9bebf880-dc0d-4b2c-9e00-f19f8e09102a
-```
-In some cases, you may have more than one image and to list them, you can run ```az ml image list```
+az ml service run realtime -i extract-biomedical-entities.env4entityextractor-1ed50826.eastus2 -d "{\"input_df\": [{\"text\": \" People with type 1 diabetes cannot make insulin because the beta cells in their pancreas are damaged or destroyed.\"}]}"
 
-Ensure local is used as the deployment environment:
-
-```
-az ml env local
-```
-
-In local mode, the CLI creates locally running web services for development and testing.
-
-Change to root:
-
-```
-sudo su
-```
-
-## 4. Realtime Service
-
-Create a realtime service by running the below command using the image-id. In the following command, we create a realtime service called sentiservice.
-
-```
-az ml service create realtime -n sentiservice –-image-id 9bebf880-dc0d-4b2c-9e00-f19f8e09102a
-```
-An example of a successful run of az ml service create looks as follows. In addition, you can also type docker ps to view the container.
-
-![DockerPs](Images/DockerPs.png)
-
-Run the service (sentiservice) created using az ml service run. Note the review text created and passed to call the web service.
-
-```
-az ml service run realtime -i sentiservice -d "{\"input_df\": [{\"reviewText\": \"The movie was great. I liked it\"}]}"
 ```
 
 

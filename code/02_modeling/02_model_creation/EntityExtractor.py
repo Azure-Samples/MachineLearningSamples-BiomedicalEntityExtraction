@@ -180,7 +180,7 @@ class EntityExtractor:
             ind += 1
             ### To see Progress ###
             if ind % 500 == 0: 
-                print("processing sentences = " + str(ind))
+                print("processing sentences = " + str(ind))                            
 
             tags = self.model.predict(np.array([x]), batch_size=1)[0]
             sent_predicted_tags = self.reader.decode_prediction_sequence(tags)
@@ -196,17 +196,17 @@ class EntityExtractor:
 
             for index in range(0, num_tokens):
                 target_tag = sent_target_tags[index]
-                pred_tags = sent_predicted_tags[index]
+                pred_tag = sent_predicted_tags[index]
 
                 if target_tag != "NONE":
-                    if pred_tags == "B-Chemical":
+                    if pred_tag == "B-Chemical":
                         predicted_tags.append("B-Drug")
-                    elif pred_tags == "I-Chemical":
+                    elif pred_tag == "I-Chemical":
                         predicted_tags.append("I-Drug")
-                    elif pred_tags == 'None':
+                    elif pred_tag == 'None':
                         predicted_tags.append('O')
                     else:
-                        predicted_tags.append(pred_tags[index])
+                        predicted_tags.append(pred_tag)
                         
                     if target_tag == "B-Chemical":
                         target_tags.append("B-Drug")
@@ -218,7 +218,8 @@ class EntityExtractor:
       
             ##for each token
             for target_tag, predicted_tag, word in zip(sent_target_tags, sent_predicted_tags, list(data_point[0])):
-                f.write(word + '\t' + str(target_tag) + '\t' + str(predicted_tag) + '\n')                                             
+                #f.write(word + '\t' + str(target_tag) + '\t' + str(predicted_tag) + '\n')                                             
+                f.write(str(predicted_tag) + '\n')
             f.write("\n")
 
             #pred_tags_wo_none = []

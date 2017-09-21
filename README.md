@@ -68,9 +68,7 @@ The neural entity extraction model has been trained and evaluated on publiclly a
 ## Prerequisites
 
 * An Azure [subscription](https://azure.microsoft.com/en-us/free/)
-* Azure Machine Learning Workbench. See [installation guide](quick-start-installation.md). Currently the Azure Machine Learning Workbench can be installed on the following operating systems only: 
-    * Windows 10 or Windows Server 2016
-    * macOS Sierra
+* Azure Machine Learning Workbench. See [installation guide](quick-start-installation.md). 
 
 ### Azure services
 * To run this scenario with Spark cluster, provision [Azure HDInsight Spark cluster](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-apache-spark-jupyter-spark-sql) (Spark 2.1 on Linux (HDI 3.6)) for scale-out computation. To process the full amount of MEDLINE abstracts discussed below, We recommend having a cluster with:
@@ -85,10 +83,15 @@ The neural entity extraction model has been trained and evaluated on publiclly a
 
 ### Python packages
 
-All the required dependencies are defined in the aml_config/conda_dependencies.yml file under the scenario project folder. The dependencies defined in this file will be
-automatically provisioned for runs against docker, VM, and HDI cluster targets. For details about the Conda environment file format, refer to [here](https://conda.io/docs/using/envs.html#create-environment-file-by-hand).
+All the required dependencies are defined into three .yml files under the scenario project folder:
+* the [aml_config/myspark_conda_dependencies.yml](aml_config/myspark_conda_dependencies.yml) file: the dependencies defined in this file will be automatically provisioned for the word embedding model training runs against HDI cluster targets.
+* the [aml_config/myvm_conda_dependencies.yml](aml_config/myvm_conda_dependencies.yml) file: the dependencies defined in this file will be automatically provisioned for the Keras deep learning model training runs against remote docker into remote VM targets. For runs into local VM as a target, you have to installs the defined dependencies manually from the CLI window.
+* the [aml_config/scoring_conda_dependencies.yml](aml_config/scoring_conda_dependencies.yml) file: the dependencies defined in this file will be automatically provisioned for the scoring web service runs into ACS cluster. The main difference between this yml file and myvm_conda_dependencies.yml file is to install TensorFlow CPU version instead of TensorFlow CPU version required for training and testing.
 
+ For details about the Conda environment file format, refer to [here](https://conda.io/docs/using/envs.html#create-environment-file-by-hand).
+Here are the basic packages required to run this project:
 * [TensorFlow with GPU support](https://www.tensorflow.org/install/)
+* [TensorFlow CPU version](https://www.tensorflow.org/install/)
 * [CNTK 2.0](https://docs.microsoft.com/en-us/cognitive-toolkit/using-cntk-with-keras)
 * [Keras](https://keras.io/#installation)
 * NLTK
@@ -112,30 +115,6 @@ For the scenario, we use the TDSP project structure and documentation templates 
 
 This project includes steps that run on two compute/execution environments: in Spark cluster and GPU-supported DS VM. We start with the description of the dependencies required both environments. 
 
-To install these packages in Docker image and in the nodes of Spark cluster, we modify conda_dependencies.yml file:
-
-    name: project_environment    
-    dependencies:
-    - python=3.5.2
-    # ipykernel is required to use the remote/docker kernels in Jupyter Notebook.
-    - ipykernel=4.6.1
-    - tensorflow-gpu==1.2.0
-    - nltk
-    - requests
-    - lxml
-    - unidecode
-    - pip:
-        # This is the operationalization API for Azure Machine Learning. Details:
-        # https://github.com/Azure/Machine-Learning-Operationalization
-        - azure-ml-api-sdk==0.1.0a6
-        - h5py==2.7.0
-        - matplotlib
-        - fastparquet
-        - keras
-        - azure-storage
-
-The modified conda\_dependencies.yml file is stored in aml_config directory of this project. 
-
 In the next steps, we connect execution environment to Azure account. Open command line window (CLI) by clicking File menu in the top left corner of AML Workbench and choosing "Open Command Prompt." Then run in CLI
 
     az login
@@ -158,27 +137,106 @@ In the next two sections we show how to complete configuration of remote docker 
 
 #### Configuration of remote Docker container
 
+To install the required packages in the Docker image, we created the following myvm_conda_dependencies.yml file stored in the aml_config directory of this project:
+
+    name: project_environment    
+    dependencies:
+    - python=3.5.2
+    # ipykernel is required to use the remote/docker kernels in Jupyter Notebook.
+    - ipykernel=4.6.1
+    - tensorflow-gpu
+    - nltk
+    - requests
+    - lxml
+    - unidecode
+    - pip:
+        # This is the operationalization API for Azure Machine Learning. Details:
+        # https://github.com/Azure/Machine-Learning-Operationalization
+        - azure-ml-api-sdk==0.1.0a6
+        - h5py==2.7.0
+        - matplotlib
+        - fastparquet
+        - keras
+        - azure-storage
+
  To set up a remote Docker container, run the following command in the CLI:
 ```
-    az ml computetarget attach --name my-dsvm-env --address <IP address> --username <username> --password <password> --type remotedocker
+    az ml computetarget attach --name myvm --address <IP address> --username <username> --password <password> --type remotedocker
 ```
 with IP address, user name and password in DSVM. IP address of DSVM can be found in Overview section of your DSVM page in Azure portal:
 
 ![VM IP](./docs/images/vm_ip.png)
 
-This command creates two files my-dsvm-env.compute and my-dsvm-env.runconfig under aml_config folder.
+This command creates two files myvm.compute and myvm.runconfig under aml_config folder. Then modify the myvm.runconfig file as follows:
+ 
+1. Set the PrepareEnvironment flag to true.
+2. Modify the CondaDependenciesFile parameter to point to the myspark_conda_dependencies.yml file.
+
+```
+ArgumentVector:
+- $file
+CondaDependenciesFile: aml_config/myvm_conda_dependencies.yml
+EnvironmentVariables: null
+Framework: PySpark
+PrepareEnvironment: false
+SparkDependenciesFile: aml_config/spark_dependencies.yml
+Target: myvm
+TrackedRun: true
+UseSampling: true
+```
+Then, you will be asked to run the following command.
+
+```
+az ml experiment prepare -c myvm
+```
 
 #### Configuration of Spark cluster
 
+To install the required packages into the Spark cluster nodes, we created the following myspark_conda_dependencies.yml file stored in the aml_config directory of this project:
+
+    name: project_environment    
+    dependencies:
+    - python=3.5.2
+    # ipykernel is required to use the remote/docker kernels in Jupyter Notebook.
+    - ipykernel=4.6.1    
+    - nltk
+    - requests
+    - lxml
+    - unidecode
+    - pip:
+        # This is the operationalization API for Azure Machine Learning. Details:
+        # https://github.com/Azure/Machine-Learning-Operationalization
+        - azure-ml-api-sdk==0.1.0a6
+        - h5py==2.7.0
+        - matplotlib
+        - fastparquet        
+        - azure-storage
+
 To set up Spark environment, run the following command in the CLI:
 ```
-    az ml computetarget attach --name my-spark-env --address <cluster name>-ssh.azurehdinsight.net  --username <username> --password <password> --type cluster
+    az ml computetarget attach --name myspark --address <cluster name>-ssh.azurehdinsight.net  --username <username> --password <password> --type cluster
 ```
 with the name of the cluster, cluster's SSH user name and password. The default value of SSH user name is `sshuser`, unless you changed it during provisioning of the cluster. The name of the cluster can be found in Properties section of your cluster page in Azure portal:
 
 ![Cluster name](./docs/images/cluster_name.png)
 
-This command creates two files my-spark-env.compute and my-spark-env.runconfig under aml_config folder.
+This command creates two files myspark.compute and myspark.runconfig under aml_config folder. Then modify the myspark.runconfig file as follows:
+
+1. Set the PrepareEnvironment flag to true.
+2. Modify the CondaDependenciesFile parameter to point to the myspark_conda_dependencies.yml file.
+
+```
+ArgumentVector:
+- $file
+CondaDependenciesFile: aml_config/myspark_conda_dependencies.yml
+EnvironmentVariables: null
+Framework: PySpark
+PrepareEnvironment: true
+SparkDependenciesFile: aml_config/spark_dependencies.yml
+Target: dl4nlp-cluster
+TrackedRun: true
+UseSampling: true
+```
 
 The step-by-step data science workflow is as follows:
 ### 1. [Data Acquisition and Understanding](./code/01_data_acquisition_and_understanding/ReadMe.md)

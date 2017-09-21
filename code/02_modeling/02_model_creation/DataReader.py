@@ -76,6 +76,10 @@ class DataReader:
         print("Loading the W2V model from file {}".format(embeddings_file))
         #W2V_model = cPickle.load(open(embeddings_file, "rb"))
         with open(embeddings_file, 'rb') as f:
+            # python3
+            # W2V_model = cPickle.load(f, encoding='bytes')                     
+
+            # python2
             W2V_model = cPickle.load(f, encoding='bytes')                     
             
         vocab = list(W2V_model.keys())       
@@ -84,10 +88,18 @@ class DataReader:
         self.wordvecs = []
         
         ###Create LookUp Table for words and their word vectors###
-        print("Creating the lookup table")
-        for index, word in enumerate(vocab):
-            self.word_to_ix_map[word] = index
-            self.wordvecs.append(W2V_model[vocab[index]])
+        with open("old_vectors.tsv", 'w') as f_vectors:
+            with open("old_words.tsv", 'w') as f_words:
+                print("Creating the lookup table")
+                for index, word in enumerate(vocab):
+                    self.word_to_ix_map[word] = index
+                    vector =  np.array(W2V_model[vocab[index]])
+                    for i in range(0, len(vector)):
+                        f_vectors.write(str(vector[i]) + "\t")
+                    f_vectors.write("\n")
+
+                    self.wordvecs.append(W2V_model[vocab[index]])
+                    f_words.write(word + "\n")
             
            
         self.wordvecs = np.array(self.wordvecs)

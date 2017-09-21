@@ -23,11 +23,18 @@ ch = logging.StreamHandler(sys.stdout)
 logger.addHandler(ch)
 
 #Here is the CLI command to create a realtime scoring web service
-#cd code\03_deployment
-#az ml service create realtime -n extract-biomedical-entities -f score.py -m c:\dl4nlp\models\lstm_bidirectional_model.h5 -s c:\dl4nlp\models\service-schema.json -r python -d c:\dl4nlp\models\w2vmodel_pubmed_vs_50_ws_5_mc_400.pkl -d c:\dl4nlp\models\tag_map.tsv -d ..\02_modeling\02_model_creation\DataReader.py -d ..\02_modeling\02_model_creation\EntityExtractor.py -c ..\..\aml_config\conda_dependencies.yml
+
+# Create realtime service
+#az ml env setup -g env4entityextractorrg -n env4entityextractor --cluster -z 5 -l eastus2 –yes
+
+# Set up AML environment and compute with ACS
+#az ml env set --cluster-name env4entityextractor --resource-group env4entityextractorrg
+
+#C:\dl4nlp\models>az ml service create realtime -n extract-biomedical-entities -f score.py -m lstm_bidirectional_model.h5 -s service-schema.json -r python -d w2vmodel_pubmed_vs_50_ws_5_mc_400.pkl -d tag_map.tsv -d DataReader.py -d EntityExtractor.py -c scoring_conda_dependencies.yml  
 
 #Here is the CLI command to run Kubernetes 
 #C:\Users\hacker\bin\kubectl.exe proxy --kubeconfig C:\Users\hacker\.kube\config
+
 def init():
     """ Initialise SD model
     """

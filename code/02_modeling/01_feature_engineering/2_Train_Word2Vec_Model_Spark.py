@@ -154,7 +154,7 @@ print("Time taken to execute above cell: " + str(timedelta) + " mins")
 # higher value (&lt; number of cores available), but this may decrease the
 # accuracy of the model.
 # </ul>
-# <br> For the cell below we are using a cluster size of 4 worker nodes each
+# <br> For this experiment, we are using a Spark cluster of size 4 worker nodes each
 # with 4 cores.
 
 timestart = datetime.datetime.now()
@@ -170,7 +170,7 @@ model = word2Vec.fit(abstracts_full_df4)
 timeend = datetime.datetime.now()
 timedelta = round((timeend - timestart).total_seconds() / 60, 2)
 print("model.getVectors().count() = {}".format(model.getVectors().count()))
-print("Time taken to execute above cell: " + str(timedelta) + " mins")
+print("Time taken to train the word2Vec model: " + str(timedelta) + " mins")
 
 
 '''

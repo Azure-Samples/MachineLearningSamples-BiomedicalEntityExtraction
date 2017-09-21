@@ -1,0 +1,31 @@
+# Conda environment specification. The dependencies defined in this file will be
+# automatically provisioned for runs against docker, VM, and HDI cluster targets.
+
+# Details about the Conda environment file format:
+# https://conda.io/docs/using/envs.html#create-environment-file-by-hand
+
+# For Spark packages and configuration, see spark_dependencies.yml.
+
+name: project_environment
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.5.2
+  # ipykernel is required to use the remote/docker kernels in Jupyter Notebook.
+  - ipykernel=4.6.1
+  - tensorflow-gpu
+  - fastparquet
+  - nltk
+  - requests
+  - lxml
+  - unidecode
+  - pip:
+    # This is the operationalization API for Azure Machine Learning. Details:
+    # https://github.com/Azure/Machine-Learning-Operationalization
+    - azure-ml-api-sdk==0.1.0a11
+    - h5py==2.7.0
+    - matplotlib
+    - scipy==1.0.0b1
+    - keras
+    - azure-storage

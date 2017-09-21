@@ -1,10 +1,10 @@
 ArgumentVector:
 - $file
-CondaDependenciesFile: aml_config/myspark_conda_dependencies.yml
+CondaDependenciesFile: aml_config/myvm_conda_dependencies.yml
 EnvironmentVariables: null
 Framework: PySpark
-PrepareEnvironment: true
+PrepareEnvironment: false
 SparkDependenciesFile: aml_config/spark_dependencies.yml
-Target: dl4nlp-cluster
+Target: myvm
 TrackedRun: true
 UseSampling: true
