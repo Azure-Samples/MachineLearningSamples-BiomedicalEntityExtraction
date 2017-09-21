@@ -54,4 +54,5 @@ To run this script into the HDInsight Spark cluster,
 - The source code of the PubMed Parser is also included in the repository.
 
 ### Next Step
-2. [Modeling](./code/02_modeling/ReadMe.md)
+2. [Modeling](../02_modeling/ReadMe.md)
+

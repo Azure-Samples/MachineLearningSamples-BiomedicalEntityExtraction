@@ -97,5 +97,5 @@ off-the-shelf for saving and loading deep learning models, refer to [here](https
 
 
 ### Next Step
-3. [Deployment](./code/03_deployment/ReadMe.md)
+3. [Deployment](../03_deployment/ReadMe.md)
 

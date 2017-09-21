@@ -83,4 +83,4 @@ in any format and use it either as a TSV to visualize using the [Projector for T
 
 
 ### Next Step
-2.3. [Model evaluation](./code/02_modeling/03_model_evaluation/ReadMe.md)
+2.3. [Model evaluation](../03_model_evaluation/ReadMe.md)
