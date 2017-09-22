@@ -1,15 +1,53 @@
-# **Code Structure**
-The files in this folder contain the source code for training a word embedding model using Word2Vec on Spark and then to use these embeddings for Neural Entity Recognition. The aim of the project is to be able to train a domain specific (Biomedical domain) word embedding model and evaluate it against generic word embedding model. The evaluation results have shown that a domain-specific word embedding model outperfoms the generic one when used as word features for entity extraction. We are using Medline PubMed article abstracts to extract word embeddings and then using that as features to train neural models to detect different entity types in the biomedical domain. The code is generic to be applied to train an entity extractio model on any other domain given big amount of unlabeled data to train the word embedding model and a fair amount of labeled data to train the LSTM neural network model.
+# Biomedical Entity Recognition using TDSP Template
 
-In real-world scenarios, training and evaluation the quality of a deep neural network is the first part of the solution. Operationalizing the trained model in a data processing pipeline either for real-time or batch scoring is one of the key capabilities of Azure Machine Learning service. The Operationalization section walks you through the required code to expose the deep learning model as a web service for your model consumers. This section shows how a deep learning model could be used for real time scoring. 
+## Summary
 
-### [Data Acquisition and Understanding](01_data_acquisition_and_understanding/ReadMe.md)
-The goal of this section is to help setup the data for training the word embedding model. 
+Biomedical named entity recognition is a critical step for complex biomedical NLP tasks such as: 
+* Extraction of diseases, symptoms from electronic medical or health records.
+* Drug discovery
+* Understanding the interactions between different entity types such as drug-drug interaction, drug-disease relationship and gene-protein relationship.
 
-### [Modeling](02_modeling/ReadMe.md)
-The goal of this section is to train the word embedding model on Medline Abstracts. Then to use these embeddings as features and train a deep neural network for extracting entities like
-Drugs, Diseases from medical data. We perform several evaluations of the word embedding model as well as the neural entity extractor. 
+Our use case scenario focuses on how a large amount of unstructured unlabeled data corpus such as PubMed article abstracts can be analyzed to train a domain-specific word embedding model. Then the output embeddings are considered as automatically generated features to train a neural entity extraction model using Keras with TensorFlow deep learning framework as backend and a small amoht of labeled data.
 
-### [Deployment](03_deployment/ReadMe.md)
-The goal of this section is to operationalize the model created in the previous section and publish a scoring web service. We also demonstrate a basic UI that can used to see how to 
-consume the web service deployed on ACS. 
+## Description
+
+The aim of this real-world scenario is to highlight how to use Azure Machine Learning Workbench to solve a complicated NLP task such as entity extraction from unstructured text. Here are the key points addressed:
+
+1. How to train a neural word embeddings model on a text corpus of about 18 million PubMed abstracts using [Spark Word2Vec implementation](https://spark.apache.org/docs/latest/mllib-feature-extraction.html#word2vec).
+2. How to build a deep Long Short-Term Memory (LSTM) recurrent neural network model for entity extraction on a GPU-enabled Azure Data Science Virtual Machine (GPU DSVM) on Azure.
+2. Demonstrate that domain-specific word embeddings model can outperform generic word embeddings models in the entity recognition task. 
+3. Demonstrate how to train and operationalize deep learning models using Azure Machine Learning Workbench.
+
+The following capabilities within Azure Machine Learning Workbench:
+
+   * Instantiation of [Team Data Science Process (TDSP) structure and templates](how-to-use-tdsp-in-azure-ml.md).
+   * Automated management of your project dependencies including the download and the installation 
+   * Execution of code in Jupyter notebooks as well as Python scripts.
+   * Run history tracking for Python files.
+   * Execution of jobs on remote Spark compute context using HDInsight Spark 2.1 clusters.
+   * Execution of jobs in remote GPU VMs on Azure.
+   * Easy operationalization of deep learning models as web-services hosted on Azure Container Services.
+
+The detailed documentation for this scenario including the step-by-step walk-through: https://review.docs.microsoft.com/en-us/azure/machine-learning/preview/scenario-tdsp-biomedical-recognition.
+
+For code samples, click the View Project icon on the right and visit the project GitHub repository.
+
+## Key components needed to run this example:
+
+* An Azure [subscription](https://azure.microsoft.com/en-us/free/)
+* Azure Machine Learning Workbench with a workspace created. See [installation guide](quick-start-installation.md). 
+* To run this scenario with Spark cluster, provision [Azure HDInsight Spark cluster](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-apache-spark-jupyter-spark-sql) (Spark 2.1 on Linux (HDI 3.6)) for scale-out computation. To process the full amount of MEDLINE abstracts discussed below, We recommend having a cluster with:
+    * a head node of type [D13_V2](https://azure.microsoft.com/en-us/pricing/details/hdinsight/) 
+    * at least four worker nodes of type [D12_V2](https://azure.microsoft.com/en-us/pricing/details/hdinsight/). 
+
+    * To maximize performance of the cluster, we recommend to change the parameters spark.executor.instances, spark.executor.cores, and spark.executor.memory by following the instructions [here](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-apache-spark-jupyter-spark-sql) and editing the definitions in "custom spark defaults" section. 
+
+* You can run the entity extraction model training locally on a [Data Science Virtual Machine (DSVM)](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro) or in a remote Docker container in a remote DSVM.
+
+* To provision DSVM for Linux (Ubuntu), follow the instructions [here](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-provision-vm). We recommend using [NC6 Standard (56 GB, K80 NVIDIA Tesla)](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro).
+
+## Contributing
+
+This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.microsoft.com.
+When you submit a pull request, a CLA-bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
+This project has adopted the Microsoft Open Source Code of Conduct. For more information see the Code of Conduct FAQ or contact opencode@microsoft.com with any additional questions or comments.
