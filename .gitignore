@@ -91,6 +91,10 @@ ENV/
 .spyderproject
 .spyproject
 
+# PTVS project settings
+.pyproj
+.sln
+
 # Rope project settings
 .ropeproject
 
@@ -99,3 +103,12 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+.azuremlhistory_git
+.ipynb_checkpoints
+azureml-logs
+*.dprep.user
+
+# Azure ML config files
+.runconfig
+.compute
