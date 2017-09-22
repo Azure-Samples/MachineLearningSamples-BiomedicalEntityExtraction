@@ -10,15 +10,15 @@ The aim of this real-world scenario is to highlight how to use Azure Machine Lea
 2. Demonstrate that domain-specific word embeddings model can outperform generic word embeddings models in the entity recognition task. 
 3. Demonstrate how to train and operationalize deep learning models using Azure Machine Learning Workbench.
 
-4. Demonstrate the following capabilities within Azure Machine Learning Workbench:
+The following capabilities within Azure Machine Learning Workbench:
 
-    * Instantiation of [Team Data Science Process (TDSP) structure and templates](how-to-use-tdsp-in-azure-ml.md).
-    * Automated management of your project dependencies including the download and the installation 
-    * Execution of code in Jupyter notebooks as well as Python scripts.
-    * Run history tracking for Python files.
-    * Execution of jobs on remote Spark compute context using HDInsight Spark 2.1 clusters.
-    * Execution of jobs in remote GPU VMs on Azure.
-    * Easy operationalization of deep learning models as web-services on Azure Container Services.
+   * Instantiation of [Team Data Science Process (TDSP) structure and templates](how-to-use-tdsp-in-azure-ml.md).
+   * Automated management of your project dependencies including the download and the installation 
+   * Execution of code in Jupyter notebooks as well as Python scripts.
+   * Run history tracking for Python files.
+   * Execution of jobs on remote Spark compute context using HDInsight Spark 2.1 clusters.
+   * Execution of jobs in remote GPU VMs on Azure.
+   * Easy operationalization of deep learning models as web-services on Azure Container Services.
 
 ## Use Case Overview
 Biomedical named entity recognition is a critical step for complex biomedical NLP tasks such as: 
@@ -32,7 +32,7 @@ Our results show that the biomedical entity extraction model training on the dom
 
 The following figure shows the architecture that was used to process data and train models.
 
-![Architecture](./docs/images/architecture.png)
+![Architecture](../docs/images/architecture.png)
 
 ## Data Description
 
@@ -68,7 +68,7 @@ The neural entity extraction model has been trained and evaluated on publiclly a
 ## Prerequisites
 
 * An Azure [subscription](https://azure.microsoft.com/en-us/free/)
-* Azure Machine Learning Workbench. See [installation guide](quick-start-installation.md). 
+* Azure Machine Learning Workbench with a created workspace. See [installation guide](quick-start-installation.md). 
 
 ### Azure services
 * To run this scenario with Spark cluster, provision [Azure HDInsight Spark cluster](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-apache-spark-jupyter-spark-sql) (Spark 2.1 on Linux (HDI 3.6)) for scale-out computation. To process the full amount of MEDLINE abstracts discussed below, We recommend having a cluster with:
@@ -109,7 +109,7 @@ Here are the basic packages required to run this project:
 For the scenario, we use the TDSP project structure and documentation templates (Figure 1), which follows the [TDSP lifecycle](https://github.com/Azure/Microsoft-TDSP/blob/master/Docs/lifecycle-detail.md). Project is created based on instructions provided [here](https://github.com/amlsamples/tdsp/blob/master/docs/how-to-use-tdsp-in-azure-ml.md).
 
 
-![Fill in project information](./docs/images/instantiation-3.png) 
+![Fill in project information](../docs/images/instantiation-3.png) 
 
 ### Configuration of execution environments
 
@@ -165,7 +165,7 @@ To install the required packages in the Docker image, we created the following m
 ```
 with IP address, user name and password in DSVM. IP address of DSVM can be found in Overview section of your DSVM page in Azure portal:
 
-![VM IP](./docs/images/vm_ip.png)
+![VM IP](../docs/images/vm_ip.png)
 
 This command creates two files myvm.compute and myvm.runconfig under aml_config folder. Then modify the myvm.runconfig file as follows:
  
@@ -218,7 +218,7 @@ To set up Spark environment, run the following command in the CLI:
 ```
 with the name of the cluster, cluster's SSH user name and password. The default value of SSH user name is `sshuser`, unless you changed it during provisioning of the cluster. The name of the cluster can be found in Properties section of your cluster page in Azure portal:
 
-![Cluster name](./docs/images/cluster_name.png)
+![Cluster name](../docs/images/cluster_name.png)
 
 This command creates two files myspark.compute and myspark.runconfig under aml_config folder. Then modify the myspark.runconfig file as follows:
 
@@ -239,12 +239,12 @@ UseSampling: true
 ```
 
 The step-by-step data science workflow is as follows:
-### 1. [Data Acquisition and Understanding](./code/01_data_acquisition_and_understanding/ReadMe.md)
-### 2. [Modeling](./code/02_modeling/ReadMe.md)
-#### 2.1. [Feature generation](./code/02_modeling/01_feature_engineering/ReadMe.md)
-#### 2.2. [Train the neural entity extractor](./code/02_modeling/02_model_creation/ReadMe.md)
-#### 2.3. [Model evaluation](./code/02_modeling/03_model_evaluation/ReadMe.md)
-### 3. [Deployment](./code/03_deployment/ReadMe.md)
+### 1. [Data Acquisition and Understanding](./01_data_acquisition_and_understanding/ReadMe.md)
+### 2. [Modeling](./02_modeling/ReadMe.md)
+#### 2.1. [Feature engineering](./02_modeling/01_feature_engineering/ReadMe.md)
+#### 2.2. [Train the neural entity extractor](./02_modeling/02_model_creation/ReadMe.md)
+#### 2.3. [Model evaluation](./02_modeling/03_model_evaluation/ReadMe.md)
+### 3. [Deployment](./03_deployment/ReadMe.md)
 
 
 ## Conclusion
