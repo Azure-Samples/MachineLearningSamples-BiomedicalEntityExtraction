@@ -1,5 +1,18 @@
 # Biomedical Entity Recognition using TDSP Template
 
+
+## Link to the Microsoft DOCS site
+
+The detailed documentation for this example includes the step-by-step walk-through:
+[https://docs.microsoft.com/azure/machine-learning/preview/scenario-tdsp-biomedical-recognition](https://docs.microsoft.com/azure/machine-learning/preview/scenario-tdsp-biomedical-recognition)
+
+
+## Link to the Gallery GitHub repository
+
+The public GitHub repository for this example contains all the code samples:
+[https://github.com/Azure/MachineLearningSamples-BiomedicalEntityExtraction](https://github.com/Azure/MachineLearningSamples-BiomedicalEntityExtraction)
+
+
 ## Summary
 
 Biomedical named entity recognition is a critical step for complex biomedical NLP tasks such as: 
