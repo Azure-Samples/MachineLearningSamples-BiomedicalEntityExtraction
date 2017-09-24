@@ -92,7 +92,6 @@ nvidia-smi -l
 
    Next step would be to obtain model predictions on the test set and evaluate the performance of the model.
 
-The output of the training phase are two files: the trained model model.h5 file and the resources.pkl file. The resources.pkl file contains the metadata of the trained model and the word embedding lookup table. 
 
 ### Next Step
 2.3. [Model evaluation](../03_model_evaluation/ReadMe.md)

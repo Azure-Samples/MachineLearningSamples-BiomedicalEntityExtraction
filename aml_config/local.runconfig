@@ -1,0 +1,10 @@
+ArgumentVector:
+  - "$file"
+Target: "local"
+EnvironmentVariables:
+  "EXAMPLE_ENV_VAR": "Example Value"
+Framework: "Python"
+CondaDependenciesFile: "aml_config/myvm_conda_dependencies.yml"
+SparkDependenciesFile: "aml_config/spark_dependencies.yml"
+PrepareEnvironment: true
+TrackedRun: true

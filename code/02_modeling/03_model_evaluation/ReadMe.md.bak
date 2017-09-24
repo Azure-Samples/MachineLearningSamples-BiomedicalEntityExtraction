@@ -38,9 +38,10 @@ in any format and use it either as a TSV to visualize using the [Projector for T
  To generate the vector for "UNK" we sample a random vector, which has the same dimension as our embeddings, from a Normal Distribution. Since the number of words in each sentence might differ, we pad each sequence 
  to make sure that they have the same length. We add an additional tag "NONE" for each of the padded term. We also associate a zero vector with the paddings. The final shape of the train and test data should be (number of samples, max_sequence_length). This is the shape that can be fed to the [Embedding Layer](https://keras.io/layers/embeddings/) in Keras. Once we have this shape for our dataset we are ready for training our neural network (but first lets create one).
  
- * Step 4: load the trained model in the [Model Creation Phase](02_modeling/02_model_creation/ReadMe.md).
+ * Step 4: laod the trained model in the [Model Creation Phase](02_modeling/02_model_creation/ReadMe.md).
 
-* Step 5: We store the predictions obtained from the previous step into a text file prediction_output.tsv. Remember that the test data files has the following format:
+* Step 5: We store the predictions obtained from the previous step into a text file. The first step here will to combine that output and obtain a file in the 
+following format
 
         Word1   Tag1
         Word2   Tag2
@@ -49,13 +50,7 @@ in any format and use it either as a TSV to visualize using the [Projector for T
         Word4   Tag4
         Word5   Tag5
 
-   Once we have the output in the above format we can use the SharedTaskEvaluation Perl script to obtain the model perfromance evlauation metrics: recall, precision and F1-score for each entity type. From the commmand line interface, 
-    1. Change the current working directory to \code\02_modeling\03_model_evaluation
-    2. Run the following perl evaluation script 
-
-    ```
-        "C:\Program Files\Git\usr\bin\perl.exe" Drug_and_Disease_eval.pl ..\..\..\sample_data\drugs_and_diseases\Drug_and_Disease_test.txt C:\dl4nlp\output\prediction_output.tsv
-    ```
+   Once we have the output in the above format we can use the SharedTaskEvaluation Script to obtain the recall, precision and F1-score for our Model.
 
 ![Sample Evaluation](../../../docs/images/evaluation-sample.png)
 

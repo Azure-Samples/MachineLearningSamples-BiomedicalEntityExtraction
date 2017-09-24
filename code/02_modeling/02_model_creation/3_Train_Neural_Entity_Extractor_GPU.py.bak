@@ -142,12 +142,6 @@ def main():
     embed_vector_size = 50
     min_count =400
 
-    # Define the data files 
-    data_folder = os.path.join("sample_data","drugs_and_diseases")
-    train_file_path = os.path.join(data_folder, "Drug_and_Disease_train.txt")
-    test_file_path = os.path.join(data_folder, "Drug_and_Disease_test.txt")    
-    data_file_path = os.path.join(data_folder, "unlabeled_test_sample.txt")    
-    resources_pickle_file = os.path.join(home_dir, "models", "resources.pkl")
     embedding_pickle_file = os.path.join(home_dir, "models", "w2vmodel_pubmed_vs_{}_ws_{}_mc_{}.pkl" \
             .format(embed_vector_size, window_size, min_count))
     print("embedding_pickle_file= {}".format(embedding_pickle_file))
@@ -167,11 +161,20 @@ def main():
         save_embeddings_to_pickle_file(embedding_full_path, embedding_pickle_file, embed_vector_size)        
         print("Done")
 
+    # Read the data    
+    data_folder = os.path.join("sample_data","drugs_and_diseases")
+    train_file_path = os.path.join(data_folder, "train_sample.txt")
+    test_file_path = os.path.join(data_folder, "test_sample.txt")    
+    data_file_path = os.path.join(data_folder, "unlabeled_test_sample.txt")
     
-    # The hyperparameters of the LSTM trained model         
+    resources_pickle_file = os.path.join(home_dir, "models", "resources.pkl")
+
+    # The hyper-parameters of the LSTM trained model         
     #network_type= 'unidirectional'
     network_type= 'bidirectional'
-    #embed_vector_size = 50    
+    #embed_vector_size = 50
+    num_classes = 7 + 1
+    max_seq_length = 613
     num_layers = 2
     num_hidden_units = 150
     num_epochs = 10
@@ -179,7 +182,7 @@ def main():
     dropout = 0.2
     reg_alpha = 0.0
 
-    model_file_path = os.path.join(home_dir,'models','lstm_{}_model_units_{}_lyrs_{}_epchs_{}_vs_{}_ws_{}_mc_{}.h5'.\
+    model_file_path = os.path.join(home_dir,'models','test_lstm_{}_model_units_{}_lyrs_{}_epchs_{}_vs_{}_ws_{}_mc_{}.h5'.\
                   format(network_type, num_hidden_units, num_layers,  num_epochs, embed_vector_size, window_size, min_count))    
     
     K.clear_session()

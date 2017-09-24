@@ -1,3 +1,4 @@
+# %%writefile DataReader.py
 from keras.preprocessing import sequence
 import numpy as np
 import nltk
@@ -98,7 +99,7 @@ class DataReader:
     ##################################################
     ##  read_and_parse_training_data  
     ##################################################
-    def read_and_parse_training_data (self, train_file, output_resources_pickle_file):
+    def read_and_parse_training_data (self, train_file, output_resources_pickle_file, skip_unknown_words = False):
         
         print("Loading the training data from file {}".format(train_file))
         with open(train_file, 'r') as f_train:            
@@ -227,7 +228,7 @@ class DataReader:
     ################################################## 
     #  read_and_parse_test_data 
     ################################################## 
-    def read_and_parse_test_data (self, test_file):       
+    def read_and_parse_test_data (self, test_file, skip_unknown_words = False):       
         
         print("Loading test data from file {}".format(test_file))
         with open(test_file, 'r') as f_test:                        
@@ -314,9 +315,9 @@ class DataReader:
         
         
      ##################################################
-     #  get_feature_vectors_2  
+     #  preprocess_unlabeled_data_2  
      ################################################## 
-    def get_feature_vectors_2 (self, data_file):        
+    def preprocess_unlabeled_data_2 (self, data_file, skip_unknown_words = False):        
 
         print("Loading unlabeled data from file {}".format(data_file))
         with open(data_file, 'r') as f_data:                                    
@@ -327,9 +328,9 @@ class DataReader:
             for line in f_data:
                 text = line.strip()                                
 
-                #break the input text into sentences before tokenization
+                #TODO: break the input text into sentences before tokenization
                 sentences = sent_tokenize(text)
-                
+                #words = line.split()                 
                 for sent in sentences:
                     sentence_words = nltk.word_tokenize(sent)                             
                     all_sentences_words.append( tuple(sentence_words) )                                                           
@@ -339,9 +340,9 @@ class DataReader:
         return self.create_feature_vectors(all_sentences_words)
 
     ##################################################
-    #  get_feature_vectors_1  
+    #  preprocess_unlabeled_data_1  
     ################################################## 
-    def get_feature_vectors_1 (self, data_list):        
+    def preprocess_unlabeled_data_1 (self, data_list, skip_unknown_words = False):        
 
         print("Reading unlabeled data from dataframe")   
         # list of list of tokens
@@ -351,9 +352,9 @@ class DataReader:
         for line in data_list:
             text = line.strip()                                
 
-            #break the input text into sentences before tokenization
+            #TODO: break the input text into sentences before tokenization
             sentences = sent_tokenize(text)
-            
+            #words = line.split()                 
             for sent in sentences:
                 sentence_words = nltk.word_tokenize(sent)                             
                 all_sentences_words.append( tuple(sentence_words) )                                                                                             

@@ -1,3 +1,4 @@
+# %%writefile Entity_Extractor.py
 from keras.preprocessing import sequence
 from keras.models import load_model,save_model
 from keras.models import Sequential
@@ -118,11 +119,11 @@ class EntityExtractor:
     # predict_1
     # read the data from the memory
     #########################################
-    def predict_1(self, text_list):
+    def predict_1(self, data_list):
         import json
         from collections import OrderedDict as odict
 
-        feat_vector_list, word_seq_list, num_tokens_list = self.reader.get_feature_vectors_1(text_list)
+        feat_vector_list, word_seq_list, num_tokens_list = self.reader.preprocess_unlabeled_data_1(data_list)
         print("Data Shape: ")        
         print(feat_vector_list.shape)
         # the output is a list of JSON strings
@@ -150,7 +151,7 @@ class EntityExtractor:
         import json
         from collections import OrderedDict as odict
 
-        feat_vector_list, word_seq_list, num_tokens_list = self.reader.get_feature_vectors_2(data_file)
+        feat_vector_list, word_seq_list, num_tokens_list = self.reader.preprocess_unlabeled_data_2(data_file)
         print("Data Shape: ")        
         print(feat_vector_list.shape)
         # the output is a list of JSON strings
@@ -184,58 +185,52 @@ class EntityExtractor:
         f = open(output_prediction_file, 'w')
         predicted_tags= []
         target_tags = []
-        batch_size = 500
-        #for each line        
-        for ind in range(0,len(test_X), batch_size):
-            batch_test_X = test_X[ind:ind+ batch_size]
-            batch_test_Y = test_Y[ind:ind+ batch_size]
-            batch_data_set = data_set[ind:ind+ batch_size]
-            batch_num_tokens_list = num_tokens_list[ind:ind+ batch_size]             
-
-            #ind += 1
+        ind = 0
+        #for each line
+        for x, y, data_point, num_tokens in zip(test_X, test_Y, data_set, num_tokens_list):
+            ind += 1
             ### To see Progress ###
             if ind % 500 == 0: 
                 print("processing sentences = " + str(ind))                                                   
 
-            batch_class_prob_dist = self.model.predict(np.array(batch_test_X), batch_size=batch_size)
-            for class_prob_dist,y,data_point, num_tokens in zip(batch_class_prob_dist, batch_test_Y, batch_data_set, batch_num_tokens_list):
-                sent_predicted_tags = self.reader.decode_prediction_sequence(class_prob_dist)
-                sent_target_tags = self.reader.decode_prediction_sequence(y)
+            tags = self.model.predict(np.array([x]), batch_size=1)[0]
+            sent_predicted_tags = self.reader.decode_prediction_sequence(tags)
+            sent_target_tags = self.reader.decode_prediction_sequence(y)
             
-                #remove padding
-                sent_predicted_tags = sent_predicted_tags[-num_tokens:]
-                sent_target_tags = sent_target_tags[-num_tokens:]
+            #remove padding
+            sent_predicted_tags = sent_predicted_tags[-num_tokens:]
+            sent_target_tags = sent_target_tags[-num_tokens:]
 
-                if len(sent_target_tags) != num_tokens or \
-                    len(sent_predicted_tags) != num_tokens:
-                    print("stop here ............")
+            if len(sent_target_tags) != num_tokens or \
+                len(sent_predicted_tags) != num_tokens:
+                print("stop here ............")
 
-                for index in range(0, num_tokens):
-                    target_tag = sent_target_tags[index]
-                    pred_tag = sent_predicted_tags[index]
+            for index in range(0, num_tokens):
+                target_tag = sent_target_tags[index]
+                pred_tag = sent_predicted_tags[index]
 
-                    if target_tag != "NONE":
-                        if pred_tag == "B-Chemical":
-                            predicted_tags.append("B-Drug")
-                        elif pred_tag == "I-Chemical":
-                            predicted_tags.append("I-Drug")
-                        elif pred_tag == 'None':
-                            predicted_tags.append('O')
-                        else:
-                            predicted_tags.append(pred_tag)
+                if target_tag != "NONE":
+                    if pred_tag == "B-Chemical":
+                        predicted_tags.append("B-Drug")
+                    elif pred_tag == "I-Chemical":
+                        predicted_tags.append("I-Drug")
+                    elif pred_tag == 'None':
+                        predicted_tags.append('O')
+                    else:
+                        predicted_tags.append(pred_tag)
                         
-                        if target_tag == "B-Chemical":
-                            target_tags.append("B-Drug")
-                        elif target_tag == "I-Chemical":
-                            target_tags.append("I-Drug")
-                        else:                        
-                            target_tags.append(target_tag)
+                    if target_tag == "B-Chemical":
+                        target_tags.append("B-Drug")
+                    elif target_tag == "I-Chemical":
+                        target_tags.append("I-Drug")
+                    else:                        
+                        target_tags.append(target_tag)
       
-                ##for each token
-                for target_tag, predicted_tag, word in zip(sent_target_tags, sent_predicted_tags, list(data_point[0])):
-                    #f.write(word + '\t' + str(target_tag) + '\t' + str(predicted_tag) + '\n')                                             
-                    f.write(str(predicted_tag) + '\n')
-                f.write("\n")                     
+            ##for each token
+            for target_tag, predicted_tag, word in zip(sent_target_tags, sent_predicted_tags, list(data_point[0])):
+                #f.write(word + '\t' + str(target_tag) + '\t' + str(predicted_tag) + '\n')                                             
+                f.write(str(predicted_tag) + '\n')
+            f.write("\n")                     
 
         f.close()
 

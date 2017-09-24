@@ -266,7 +266,6 @@ This use case scenario demonstrate how to train a word embedding model using Wor
 * Tomas Mikolov, Kai Chen, Greg Corrado, and Jeffrey Dean. 2013a. Efficient estimation of word representations in vector space. In Proceedings of ICLR.
 * Tomas Mikolov, Ilya Sutskever, Kai Chen, Greg S Corrado, and Jeff Dean. 2013b. Distributed representations of words and phrases and their compositionality. In Proceedings of NIPS, pages 3111â€“3119.
 * Billy Chiu, Gamal Crichton, Anna Korhonen and Sampo Pyysalo. 2016. [How to Train Good Word Embeddings for Biomedical NLP](http://aclweb.org/anthology/W/W16/W16-2922.pdf), In Proceedings of the 15th Workshop on Biomedical Natural Language Processing, pages 166â€“174.
-* Isabel Segura-Bedmar, V´ictor Su´arez-Paniagua, Paloma Mart´inez. 2015. [Exploring Word Embedding for Drug Name Recognition](https://aclweb.org/anthology/W/W15/W15-2608.pdf), In Proceedings of the Sixth International Workshop on Health Text Mining and Information Analysis (Louhi), pages 64â€“72, Lisbon, Portugal, 17 September 2015. 
 * [Vector Representations of Words](https://www.tensorflow.org/tutorials/word2vec)
 * [Recurrent Neural Networks](https://www.tensorflow.org/tutorials/recurrent)
 * [Problems encountered with Spark ml Word2Vec](https://intothedepthsofdataengineering.wordpress.com/2017/06/26/problems-encountered-with-spark-ml-word2vec/)
