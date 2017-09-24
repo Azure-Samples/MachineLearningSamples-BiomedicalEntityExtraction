@@ -2,7 +2,8 @@
 
 ### Objective
 
-The [companion script](3_Train_Neural_Entity_Extractor_GPU.py) describes how you can use [Keras](https://keras.io/) with [TensorFlow](https://www.tensorflow.org/) backend to train a deep neural network for entity recognition. We demonstrate how we can use the Word Embeddings generated previously to initialize the embedding layer of the neural network. The task at hand is to identity drug and disease mentions in a given text. We are using an auto labeled dataset which is the combination of SemEval 2013 - Task 9.1 (Drug Recognition) and BioCreative V CDR task corpus.
+The [companion script](3_Train_Neural_Entity_Extractor_GPU.py) describes how you can use [Keras](https://keras.io/) with [TensorFlow](https://www.tensorflow.org/) backend to train a deep neural network for entity recognition. We demonstrate how we can use the word embeddings extracted previously to initialize the embedding layer of the neural network. The main hypothesis of this work is that the incorporating of word embeddings as features into a
+deep learning model could help to recognize unseen or very rare drug mentions in the training set. The task at hand is to identity drug and disease mentions in a given text. We are using an auto-labeled dataset which is the combination of SemEval 2013 - Task 9.1 (Drug Recognition) and BioCreative V CDR task corpus.
 
 
 This Python script runs locally on an [NC6 Windows Data Science VM](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro) by Azure which has a single GPU, for more information about pricing, [click here](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/series/#n-series).
