@@ -11,7 +11,9 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - python=3.5.2 
+  - python=3.5.2
+  # ipykernel is required to use the remote/docker kernels in Jupyter Notebook.
+  - ipykernel=4.6.1
   - tensorflow
   - fastparquet
   - nltk
@@ -21,8 +23,8 @@ dependencies:
   - pip:
     # This is the operationalization API for Azure Machine Learning. Details:
     # https://github.com/Azure/Machine-Learning-Operationalization
-    - azure-ml-api-sdk
-    - h5py
+    - azure-ml-api-sdk==0.1.0a11
+    - h5py==2.7.0
     - matplotlib
     - scipy==1.0.0b1
     - keras

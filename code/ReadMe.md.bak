@@ -13,17 +13,17 @@ The aim of this real-world scenario is to highlight how to use Azure Machine Lea
 The following capabilities within Azure Machine Learning Workbench:
 
    * Instantiation of [Team Data Science Process (TDSP) structure and templates](how-to-use-tdsp-in-azure-ml.md).
-   * Automated management of your project dependencies including the download and the installation 
+   * Automated management of your project dependencies including the download and the installation.
    * Execution of code in Jupyter notebooks as well as Python scripts.
    * Run history tracking for Python files.
    * Execution of jobs on remote Spark compute context using HDInsight Spark 2.1 clusters.
    * Execution of jobs in remote GPU VMs on Azure.
-   * Easy operationalization of deep learning models as web-services on Azure Container Services.
+   * Easy operationalization of deep learning models as web services on Azure Container Services.
 
 ## Use Case Overview
 Biomedical named entity recognition is a critical step for complex biomedical NLP tasks such as: 
 * Extraction of diseases, symptoms from electronic medical or health records.
-* Drug discovery
+* Drug discovery.
 * Understanding the interactions between different entity types such as drug-drug interaction, drug-disease relationship and gene-protein relationship.
 
 Our use case scenario focuses on how a large amount of unstructured data corpus such as Medline PubMed abstracts can be analyzed to train a word embedding model. Then the output embeddings are considered as automatically generated features to train a neural entity extractor.
@@ -37,7 +37,7 @@ The following figure shows the architecture that was used to process data and tr
 ## Data Description
 
 ### 1. Word2Vec model training data
-We first downloaded the raw MEDLINE abstract data from [MEDLINE](https://www.nlm.nih.gov/pubs/factsheets/medline.html). The data is publically available in the form of XML files on their [FTP server](https://ftp.ncbi.nlm.nih.gov/pubmed/baseline). There are 892 XML files available on the server and each of the XML files has the information of 30,000 articles. More details about the data collection step are provided in the Project Structure section. The fields present in each file are 
+MedLine is a biomedical literature database. We first downloaded the 2017 release of MedLine from [MEDLINE](https://www.nlm.nih.gov/pubs/factsheets/medline.html). The data is publically available in the form of XML files on their [FTP server](https://ftp.ncbi.nlm.nih.gov/pubmed/baseline). There are 892 XML files available on the server and each of the XML files has the information of 30,000 articles. More details about the data collection step are provided in the [Data Acquisition and Understanding](./code/01_data_acquisition_and_understanding/ReadMe.md) section. The fields present in each file are 
         
         abstract
         affiliation
@@ -59,12 +59,13 @@ We first downloaded the raw MEDLINE abstract data from [MEDLINE](https://www.nlm
 
 ### 2. LSTM model training data
 
-The neural entity extraction model has been trained and evaluated on publiclly available datasets. To obtain a detailed description about these datasets, you could refer to the following sources:
+The neural entity extraction model has been trained and evaluated on the following publically available datasets:
+
  * [Bio-Entity Recognition Task at BioNLP/NLPBA 2004](http://www.nactem.ac.uk/tsujii/GENIA/ERtask/report.html)
  * [BioCreative V CDR task corpus](http://www.biocreative.org/tasks/biocreative-v/track-3-cdr/)
  * [SemEval 2013 - Task 9.1 (Drug Recognition)](https://www.cs.york.ac.uk/semeval-2013/task9/)
 
-The training and test data are TSV files where each sentence is represented in the IOB tags format. In this scheme, each token is tagged with one of three special chunk tags, I (inside), O (outside), or B (begin). A token is tagged as B if it marks the beginning of a chunk. Subsequent tokens within the chunk are tagged I. All other tokens are tagged O.
+The training and test data are TSV files where each sentence is represented in the IOB-format scheme. In this scheme, each token is tagged with one of three special chunk tags, I (inside), O (outside), or B (begin). A token is tagged as B if it marks the beginning of an entity mention such as B-Drug. Subsequent tokens within the entity mention are tagged I suhc as I-Drug. All other tokens are tagged O.
 ```
 Naloxone	B-Chemical
 reverses	O
@@ -266,6 +267,7 @@ This use case scenario demonstrate how to train a word embedding model using Wor
 * Tomas Mikolov, Kai Chen, Greg Corrado, and Jeffrey Dean. 2013a. Efficient estimation of word representations in vector space. In Proceedings of ICLR.
 * Tomas Mikolov, Ilya Sutskever, Kai Chen, Greg S Corrado, and Jeff Dean. 2013b. Distributed representations of words and phrases and their compositionality. In Proceedings of NIPS, pages 3111â€“3119.
 * Billy Chiu, Gamal Crichton, Anna Korhonen and Sampo Pyysalo. 2016. [How to Train Good Word Embeddings for Biomedical NLP](http://aclweb.org/anthology/W/W16/W16-2922.pdf), In Proceedings of the 15th Workshop on Biomedical Natural Language Processing, pages 166â€“174.
+* Isabel Segura-Bedmar, V´ictor Su´arez-Paniagua, Paloma Mart´inez. 2015. [Exploring Word Embedding for Drug Name Recognition](https://aclweb.org/anthology/W/W15/W15-2608.pdf), In Proceedings of the Sixth International Workshop on Health Text Mining and Information Analysis (Louhi), pages 64â€“72, Lisbon, Portugal, 17 September 2015. 
 * [Vector Representations of Words](https://www.tensorflow.org/tutorials/word2vec)
 * [Recurrent Neural Networks](https://www.tensorflow.org/tutorials/recurrent)
 * [Problems encountered with Spark ml Word2Vec](https://intothedepthsofdataengineering.wordpress.com/2017/06/26/problems-encountered-with-spark-ml-word2vec/)

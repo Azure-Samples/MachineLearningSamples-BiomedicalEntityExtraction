@@ -13,20 +13,20 @@ The aim of this real-world scenario is to highlight how to use Azure Machine Lea
 The following capabilities within Azure Machine Learning Workbench:
 
    * Instantiation of [Team Data Science Process (TDSP) structure and templates](how-to-use-tdsp-in-azure-ml.md).
-   * Automated management of your project dependencies including the download and the installation 
+   * Automated management of your project dependencies including the download and the installation.
    * Execution of code in Jupyter notebooks as well as Python scripts.
    * Run history tracking for Python files.
    * Execution of jobs on remote Spark compute context using HDInsight Spark 2.1 clusters.
    * Execution of jobs in remote GPU VMs on Azure.
-   * Easy operationalization of deep learning models as web-services on Azure Container Services.
+   * Easy operationalization of deep learning models as web services on Azure Container Services.
 
 ## Use Case Overview
 Biomedical named entity recognition is a critical step for complex biomedical NLP tasks such as: 
 * Extraction of diseases, symptoms from electronic medical or health records.
-* Drug discovery
+* Drug discovery.
 * Understanding the interactions between different entity types such as drug-drug interaction, drug-disease relationship and gene-protein relationship.
 
-Our use case scenario focuses on how a large amount of unstructured data corpus such as Medline PubMed abstracts can be analyzed to train a word embedding model. Then the output embeddings are considered as automatically generated features to train a neural entity extractor.
+Our use case scenario focuses on how a large amount of unstructured data corpus such as MedLine PubMed abstracts can be analyzed to train a word embedding model. Then the output embeddings are considered as automatically generated features to train a neural entity extractor.
 
 Our results show that the biomedical entity extraction model training on the domain-specific word embedding features outperforms the model trained on the generic feature type. The domain-specific model can detect 7012 entities correctly (out of 9475) with F1-score of 0.73 compared to 5274 entities with F1-score of 0.61 for the generic model.
 
@@ -37,7 +37,7 @@ The following figure shows the architecture that was used to process data and tr
 ## Data Description
 
 ### 1. Word2Vec model training data
-We first downloaded the raw MEDLINE abstract data from [MEDLINE](https://www.nlm.nih.gov/pubs/factsheets/medline.html). The data is publically available in the form of XML files on their [FTP server](https://ftp.ncbi.nlm.nih.gov/pubmed/baseline). There are 892 XML files available on the server and each of the XML files has the information of 30,000 articles. More details about the data collection step are provided in the Project Structure section. The fields present in each file are 
+MedLine is a biomedical literature database. We first downloaded the 2017 release of MedLine from [here](https://www.nlm.nih.gov/pubs/factsheets/medline.html). The data is publically available in the form of XML files on their [FTP server](https://ftp.ncbi.nlm.nih.gov/pubmed/baseline). There are 892 XML files available on the server and each of the XML files has the information of 30,000 articles. More details about the data collection step are provided in the [Data Acquisition and Understanding](./code/01_data_acquisition_and_understanding/ReadMe.md) section. The fields present in each file are 
         
         abstract
         affiliation
@@ -59,12 +59,13 @@ We first downloaded the raw MEDLINE abstract data from [MEDLINE](https://www.nlm
 
 ### 2. LSTM model training data
 
-The neural entity extraction model has been trained and evaluated on publiclly available datasets. To obtain a detailed description about these datasets, you could refer to the following sources:
+The neural entity extraction model has been trained and evaluated on the following publically available datasets:
+
  * [Bio-Entity Recognition Task at BioNLP/NLPBA 2004](http://www.nactem.ac.uk/tsujii/GENIA/ERtask/report.html)
  * [BioCreative V CDR task corpus](http://www.biocreative.org/tasks/biocreative-v/track-3-cdr/)
  * [SemEval 2013 - Task 9.1 (Drug Recognition)](https://www.cs.york.ac.uk/semeval-2013/task9/)
 
-The training and test data are TSV files where each sentence is represented in the IOB tags format. In this scheme, each token is tagged with one of three special chunk tags, I (inside), O (outside), or B (begin). A token is tagged as B if it marks the beginning of a chunk. Subsequent tokens within the chunk are tagged I. All other tokens are tagged O.
+The training and test data are TSV files where each sentence is represented in the IOB-format scheme. In this scheme, each token is tagged with one of three special chunk tags, I (inside), O (outside), or B (begin). A token is tagged as B if it marks the beginning of an entity mention such as B-Drug. Subsequent tokens within the entity mention are tagged I suhc as I-Drug. All other tokens are tagged O.
 ```
 Naloxone	B-Chemical
 reverses	O
@@ -81,7 +82,7 @@ clonidine	B-Chemical
 * Azure Machine Learning Workbench with a created workspace. See [installation guide](quick-start-installation.md). 
 
 ### Azure services
-* To run this scenario with Spark cluster, provision [Azure HDInsight Spark cluster](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-apache-spark-jupyter-spark-sql) (Spark 2.1 on Linux (HDI 3.6)) for scale-out computation. To process the full amount of MEDLINE abstracts discussed below, We recommend having a cluster with:
+* To run this scenario with Spark cluster, provision [Azure HDInsight Spark cluster](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-apache-spark-jupyter-spark-sql) (Spark 2.1 on Linux (HDI 3.6)) for scale-out computation. To process the full amount of MedLine abstracts discussed below, we recommend having a cluster with:
     * a head node of type [D13_V2](https://azure.microsoft.com/en-us/pricing/details/hdinsight/) 
     * at least four worker nodes of type [D12_V2](https://azure.microsoft.com/en-us/pricing/details/hdinsight/). 
 
@@ -102,7 +103,7 @@ All the required dependencies are defined into three .yml files under the scenar
 Here are the basic packages required to run this project:
 * [TensorFlow with GPU support](https://www.tensorflow.org/install/)
 * [TensorFlow CPU version](https://www.tensorflow.org/install/)
-* [CNTK 2.0](https://docs.microsoft.com/en-us/cognitive-toolkit/using-cntk-with-keras)
+* [CNTK 2.0](https://docs.microsoft.com/en-us/cognitive-toolkit/using-cntk-with-keras) could be used as backend for Keras instead of TensorFlow
 * [Keras](https://keras.io/#installation)
 * NLTK
 * Fastparquet
@@ -116,16 +117,17 @@ Here are the basic packages required to run this project:
 * [How to use GPU](how-to-use-gpu.md)
 
 ## Scenario Structure
-For the scenario, we use the TDSP project structure and documentation templates (Figure 1), which follows the [TDSP lifecycle](https://github.com/Azure/Microsoft-TDSP/blob/master/Docs/lifecycle-detail.md). Project is created based on instructions provided [here](https://github.com/amlsamples/tdsp/blob/master/docs/how-to-use-tdsp-in-azure-ml.md).
+For the scenario, we use the TDSP project structure and documentation templates (Figure 1), which follows the [TDSP lifecycle](https://github.com/Azure/Microsoft-TDSP/blob/master/Docs/lifecycle-detail.md). The project is created based on the instructions provided [here](https://github.com/amlsamples/tdsp/blob/master/docs/how-to-use-tdsp-in-azure-ml.md).
 
 
 ![Fill in project information](../docs/images/instantiation-3.png) 
+Figure 1. TDSP Template in AML Workbench.
 
 ### Configuration of execution environments
 
-This project includes steps that run on two compute/execution environments: in Spark cluster and GPU-supported DS VM. We start with the description of the dependencies required both environments. 
+This project includes steps that run on two compute/execution environments: in Spark cluster and GPU-supported DSVM. We start with the description of the dependencies required for both environments. 
 
-In the next steps, we connect execution environment to Azure account. Open command line window (CLI) by clicking File menu in the top left corner of AML Workbench and choosing "Open Command Prompt." Then run in CLI
+In the next steps, we connect execution environments to an Azure account. Open a Command Line Interface (CLI) window by clicking File menu in the top left corner of AML Workbench and choosing "Open Command Prompt". Then run in CLI the following command:
 ```
     az login
 ```
@@ -137,13 +139,13 @@ Go to this web page, enter the code and sign into your Azure account. After this
 ```
     az account list -o table
 ```
-and find the subscription ID of Azure subscription that has your AML Workbench Workspace account. Finally, run in CLI
+and find the subscription ID of the Azure subscription that has your AML Workbench Workspace account. Finally, run in CLI
 ```
     az account set -s <subscription ID>
 ```
 to complete the connection to your Azure subscription.
 
-In the next two sections we show how to complete configuration of remote docker and Spark cluster.
+In the next two sections we show how to complete the configuration of the remote Docker container and the Spark cluster environments.
 
 #### Configuration of remote Docker container
 
@@ -173,11 +175,11 @@ To install the required packages in the Docker image, we created the following m
 ```
     az ml computetarget attach --name myvm --address <IP address> --username <username> --password <password> --type remotedocker
 ```
-with IP address, user name and password in DSVM. IP address of DSVM can be found in Overview section of your DSVM page in Azure portal:
+with IP address, user name and password for the DSVM. The IP address of a DSVM can be found in the Overview section of your DSVM page in Azure portal:
 
 ![VM IP](../docs/images/vm_ip.png)
 
-This command creates two files myvm.compute and myvm.runconfig under aml_config folder. Then modify the myvm.runconfig file as follows:
+This command creates two files under the aml_config folder: myvm.compute and myvm.runconfig. Then modify the myvm.runconfig file as follows:
  
 1. Set the PrepareEnvironment flag to true.
 2. Modify the CondaDependenciesFile parameter to point to the myspark_conda_dependencies.yml file.
@@ -226,7 +228,7 @@ To set up Spark environment, run the following command in the CLI:
 ```
     az ml computetarget attach --name myspark --address <cluster name>-ssh.azurehdinsight.net  --username <username> --password <password> --type cluster
 ```
-with the name of the cluster, cluster's SSH user name and password. The default value of SSH user name is `sshuser`, unless you changed it during provisioning of the cluster. The name of the cluster can be found in Properties section of your cluster page in Azure portal:
+with the name of the cluster, cluster's SSH user name and password. The default value of SSH user name is `sshuser`, unless you changed it during provisioning of the cluster. The name of the cluster can be found in the Properties section of your cluster page in Azure portal:
 
 ![Cluster name](../docs/images/cluster_name.png)
 
@@ -259,7 +261,7 @@ The step-by-step data science workflow is as follows:
 
 ## Conclusion
 
-This use case scenario demonstrate how to train a word embedding model using Word2Vec algorithm on Spark and then use the extracted embeddings as features to train a deep neural network for entity extraction. We have applied the training pipeline on the biomedical domain. However, the pipeline is generic enough to be applied to detect custom entity types of any other domain. You just need enough data and you can easily adapt the workflow presented here for a different domain.
+This use case scenario demonstrates how to train a domain-specific word embedding model using Word2Vec algorithm on Spark and then use the extracted embeddings as features to train a deep neural network for entity extraction. We have applied the training pipeline on the biomedical domain. However, the pipeline is generic enough to be applied to detect custom entity types of any other domain. You just need enough data and you can easily adapt the workflow presented here for a different domain.
 
 ## References
 
