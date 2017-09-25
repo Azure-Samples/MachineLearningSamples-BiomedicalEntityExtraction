@@ -37,7 +37,7 @@ The following figure shows the architecture that was used to process data and tr
 ## Data Description
 
 ### 1. Word2Vec model training data
-MedLine is a biomedical literature database. We first downloaded the 2017 release of MedLine from [here](https://www.nlm.nih.gov/pubs/factsheets/medline.html). The data is publically available in the form of XML files on their [FTP server](https://ftp.ncbi.nlm.nih.gov/pubmed/baseline). There are 892 XML files available on the server and each of the XML files has the information of 30,000 articles. More details about the data collection step are provided in the [Data Acquisition and Understanding](./code/01_data_acquisition_and_understanding/ReadMe.md) section. The fields present in each file are 
+MedLine is a biomedical literature database. We first downloaded the 2017 release of MedLine from [here](https://www.nlm.nih.gov/pubs/factsheets/medline.html). The data is publically available in the form of XML files on their [FTP server](https://ftp.ncbi.nlm.nih.gov/pubmed/baseline). There are 892 XML files available on the server and each of the XML files has the information of 30,000 articles. More details about the data collection step are provided in the [Data Acquisition and Understanding](../../code/01_data_acquisition_and_understanding/ReadMe.md) section. The fields present in each file are 
         
         abstract
         affiliation
@@ -95,9 +95,9 @@ clonidine	B-Chemical
 ### Python packages
 
 All the required dependencies are defined into three .yml files under the scenario project folder:
-* the [aml_config/myspark_conda_dependencies.yml](aml_config/myspark_conda_dependencies.yml) file: the dependencies defined in this file will be automatically provisioned for the word embedding model training runs against HDI cluster targets.
-* the [aml_config/myvm_conda_dependencies.yml](aml_config/myvm_conda_dependencies.yml) file: the dependencies defined in this file will be automatically provisioned for the Keras deep learning model training runs against remote docker into remote VM targets. For runs into local VM as a target, you have to installs the defined dependencies manually from the CLI window.
-* the [aml_config/scoring_conda_dependencies.yml](aml_config/scoring_conda_dependencies.yml) file: the dependencies defined in this file will be automatically provisioned for the scoring web service runs into ACS cluster. The main difference between this yml file and myvm_conda_dependencies.yml file is to install TensorFlow CPU version instead of TensorFlow GPU version that is used for training and testing.
+* the [aml_config/myspark_conda_dependencies.yml](../../aml_config/myspark_conda_dependencies.yml) file: the dependencies defined in this file will be automatically provisioned for the word embedding model training runs against HDI cluster targets.
+* the [aml_config/myvm_conda_dependencies.yml](../../aml_config/myvm_conda_dependencies.yml) file: the dependencies defined in this file will be automatically provisioned for the Keras deep learning model training runs against remote docker into remote VM targets. For runs into local VM as a target, you have to installs the defined dependencies manually from the CLI window.
+* the [aml_config/scoring_conda_dependencies.yml](../../aml_config/scoring_conda_dependencies.yml) file: the dependencies defined in this file will be automatically provisioned for the scoring web service runs into ACS cluster. The main difference between this yml file and myvm_conda_dependencies.yml file is to install TensorFlow CPU version instead of TensorFlow GPU version that is used for training and testing.
 
  For details about the Conda environment file format, refer to [here](https://conda.io/docs/using/envs.html#create-environment-file-by-hand).
 Here are the basic packages required to run this project:
