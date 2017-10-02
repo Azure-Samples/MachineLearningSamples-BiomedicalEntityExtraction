@@ -42,7 +42,12 @@ from EntityExtractor import EntityExtractor
 def main():
     print("Running on BIO-NLP data\n\n")    
     
-    home_dir = "C:\\dl4nlp" 
+    from sys import platform
+    if platform == "win32":
+        home_dir = "C:\\dl4nlp"
+    else:
+        home_dir = os.path.join(os.path.expanduser('~'), "dl4nlp")
+
     print("home_dir = {}".format(home_dir))   
    
     # The hyper-parameters of the word embedding trained model 
