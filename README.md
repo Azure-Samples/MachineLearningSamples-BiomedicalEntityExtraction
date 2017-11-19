@@ -15,12 +15,12 @@ The public GitHub repository for this example contains all the code samples:
 
 ## Summary
 
-Biomedical named entity recognition is a critical step for complex biomedical NLP tasks such as: 
+[Entity extraction](https://en.wikipedia.org/wiki/Named-entity_recognition) is a subtask of information extraction (also known as Named-entity recognition (NER), entity chunking and entity identification). Biomedical named entity recognition is a critical step for complex biomedical NLP tasks such as: 
 * Extraction of diseases, symptoms from electronic medical or health records.
 * Drug discovery
 * Understanding the interactions between different entity types such as drug-drug interaction, drug-disease relationship and gene-protein relationship.
 
-Our use case scenario focuses on how a large amount of unstructured unlabeled data corpus such as PubMed article abstracts can be analyzed to train a domain-specific word embedding model. Then the output embeddings are considered as automatically generated features to train a neural entity extraction model using Keras with TensorFlow deep learning framework as backend and a small amoht of labeled data.
+This real-world scenario focuses on how a large amount of unstructured unlabeled data corpus such as PubMed article abstracts can be analyzed to train a domain-specific word embedding model. Then the output embeddings are considered as automatically generated features to train a neural entity extraction model using Keras with TensorFlow deep learning framework as backend and a small amoht of labeled data.
 
 ## Description
 
@@ -58,6 +58,9 @@ For code samples, click the View Project icon on the right and visit the project
 * You can run the entity extraction model training locally on a [Data Science Virtual Machine (DSVM)](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro) or in a remote Docker container in a remote DSVM.
 
 * To provision DSVM for Linux (Ubuntu), follow the instructions [here](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-provision-vm). We recommend using [NC6 Standard (56 GB, K80 NVIDIA Tesla)](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro).
+
+## Data/Telemetry
+The Biomedical named entity recognition scenario collects usage data and sends it to Microsoft to help improve our products and services. Read our [privacy statement](http://go.microsoft.com/fwlink/?LinkId=521839) to learn more. 
 
 ## Contributing
 
