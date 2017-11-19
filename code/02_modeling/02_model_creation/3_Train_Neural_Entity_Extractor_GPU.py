@@ -36,6 +36,10 @@ import keras.backend as K
 from DataReader import DataReader
 from EntityExtractor import EntityExtractor
 
+from azureml.logging import get_azureml_logger
+
+run_logger = get_azureml_logger()
+run_logger.log('amlrealworld.BiomedicalEntityExtraction.Train-NeuralEntityExtractor-GPU','true')
 
 #########################################################
 #   save_embeddings_to_pickle_file
