@@ -36,6 +36,11 @@ import keras.backend as K
 from DataReader import DataReader
 from EntityExtractor import EntityExtractor
 
+from azureml.logging import get_azureml_logger
+
+run_logger = get_azureml_logger()
+run_logger.log('amlrealworld.BiomedicalEntityExtraction.Test-EntityExtractor-GPU','true')
+    
 ################################################################################### 
 #  Load the network and obtain the predictions on the test set
 ###################################################################################
