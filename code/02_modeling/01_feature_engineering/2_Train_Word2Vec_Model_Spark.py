@@ -26,10 +26,13 @@ from pyspark.sql.types import *
 import matplotlib.pyplot as plt
 import numpy as np
 import datetime
-
 import os
 import sys
+from azureml.logging import get_azureml_logger
 
+run_logger = get_azureml_logger()
+run_logger.log('amlrealworld.BiomedicalEntityExtraction.Train-Word2Vec-Model-Spark','true')
+    
 spark = SparkSession \
     .builder \
     .appName("Train word embeddings model") \
