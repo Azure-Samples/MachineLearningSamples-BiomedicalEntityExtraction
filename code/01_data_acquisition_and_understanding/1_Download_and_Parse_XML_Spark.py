@@ -43,6 +43,10 @@ import requests
 import lxml
 import unidecode 
 import pubmed_parser as pp
+from azureml.logging import get_azureml_logger
+
+run_logger = get_azureml_logger()
+run_logger.log('amlrealworld.BiomedicalEntityExtraction.Download-and-Parse-XML-Spark','true')
 
 ######################################################
 #   download_xml_gz_files()
