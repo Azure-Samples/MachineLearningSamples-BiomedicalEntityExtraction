@@ -173,7 +173,7 @@ To install the required packages in the Docker image, we created the following m
 
  To set up a remote Docker container, run the following command in the CLI:
 ```
-    az ml computetarget attach --name myvm --address <IP address> --username <username> --password <password> --type remotedocker
+    az ml computetarget attach remotedocker --name myvm --address <IP address> --username <username> --password <password>
 ```
 with IP address, user name and password for the DSVM. The IP address of a DSVM can be found in the Overview section of your DSVM page in Azure portal:
 
@@ -226,7 +226,7 @@ To install the required packages into the Spark cluster nodes, we created the fo
 
 To set up Spark environment, run the following command in the CLI:
 ```
-    az ml computetarget attach --name myspark --address <cluster name>-ssh.azurehdinsight.net  --username <username> --password <password> --type cluster
+    az ml computetarget attach cluster --name myspark --address <cluster name>-ssh.azurehdinsight.net  --username <username> --password <password>
 ```
 with the name of the cluster, cluster's SSH user name and password. The default value of SSH user name is `sshuser`, unless you changed it during provisioning of the cluster. The name of the cluster can be found in the Properties section of your cluster page in Azure portal:
 
@@ -249,6 +249,10 @@ Target: dl4nlp-cluster
 TrackedRun: true
 UseSampling: true
 ```
+Then, you will be asked to run the following command.
+```
+az ml experiment prepare -c myspark
+```
 
 The step-by-step data science workflow is as follows:
 ### 1. [Data Acquisition and Understanding](./01_data_acquisition_and_understanding/ReadMe.md)
@@ -266,9 +270,9 @@ This use case scenario demonstrates how to train a domain-specific word embeddin
 ## References
 
 * Tomas Mikolov, Kai Chen, Greg Corrado, and Jeffrey Dean. 2013a. Efficient estimation of word representations in vector space. In Proceedings of ICLR.
-* Tomas Mikolov, Ilya Sutskever, Kai Chen, Greg S Corrado, and Jeff Dean. 2013b. Distributed representations of words and phrases and their compositionality. In Proceedings of NIPS, pages 3111–3119.
-* Billy Chiu, Gamal Crichton, Anna Korhonen and Sampo Pyysalo. 2016. [How to Train Good Word Embeddings for Biomedical NLP](http://aclweb.org/anthology/W/W16/W16-2922.pdf), In Proceedings of the 15th Workshop on Biomedical Natural Language Processing, pages 166–174.
-* Isabel Segura-Bedmar, V�ictor Su�arez-Paniagua, Paloma Mart�inez. 2015. [Exploring Word Embedding for Drug Name Recognition](https://aclweb.org/anthology/W/W15/W15-2608.pdf), In Proceedings of the Sixth International Workshop on Health Text Mining and Information Analysis (Louhi), pages 64–72, Lisbon, Portugal, 17 September 2015. 
+* Tomas Mikolov, Ilya Sutskever, Kai Chen, Greg S Corrado, and Jeff Dean. 2013b. Distributed representations of words and phrases and their compositionality. In Proceedings of NIPS, pages 3111â3119.
+* Billy Chiu, Gamal Crichton, Anna Korhonen and Sampo Pyysalo. 2016. [How to Train Good Word Embeddings for Biomedical NLP](http://aclweb.org/anthology/W/W16/W16-2922.pdf), In Proceedings of the 15th Workshop on Biomedical Natural Language Processing, pages 166â174.
+* Isabel Segura-Bedmar, V´ictor Su´arez-Paniagua, Paloma Mart´inez. 2015. [Exploring Word Embedding for Drug Name Recognition](https://aclweb.org/anthology/W/W15/W15-2608.pdf), In Proceedings of the Sixth International Workshop on Health Text Mining and Information Analysis (Louhi), pages 64â72, Lisbon, Portugal, 17 September 2015. 
 * [Vector Representations of Words](https://www.tensorflow.org/tutorials/word2vec)
 * [Recurrent Neural Networks](https://www.tensorflow.org/tutorials/recurrent)
 * [Problems encountered with Spark ml Word2Vec](https://intothedepthsofdataengineering.wordpress.com/2017/06/26/problems-encountered-with-spark-ml-word2vec/)
