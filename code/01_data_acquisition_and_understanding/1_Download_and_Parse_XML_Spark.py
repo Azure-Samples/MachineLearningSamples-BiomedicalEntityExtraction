@@ -81,7 +81,7 @@ def download_xml_gz_files():
         print(len(file_collection))
         
         for i in range(1, num_xml_files+1, batch_size):          
-            file_collection = ['medline17n%04d.xml.gz' % j
+            file_collection = ['medline18n%04d.xml.gz' % j
                         for j in range(i, min([i + batch_size, num_xml_files +1]) )
                         if not os.path.exists(os.path.join(xml_local_dir,'medline17n%04d.xml.gz' % j))]
         
@@ -119,7 +119,7 @@ def process_files():
         print('The directory {} does not exist'.format(xml_local_dir))
   
     for i in range(1, num_xml_files+1, batch_size):          
-        file_collection = [os.path.join(xml_local_dir,'medline17n%04d.xml.gz' % j)
+        file_collection = [os.path.join(xml_local_dir,'medline18n%04d.xml.gz' % j)
                        for j in range(i, i + batch_size) 
                        if os.path.exists(os.path.join(xml_local_dir,'medline17n%04d.xml.gz' % j))]        
         
