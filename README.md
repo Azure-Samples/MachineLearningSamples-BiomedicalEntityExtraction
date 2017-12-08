@@ -48,7 +48,7 @@ For code samples, click the View Project icon on the right and visit the project
 ## Key components needed to run this example:
 
 * An Azure [subscription](https://azure.microsoft.com/en-us/free/)
-* Azure Machine Learning Workbench with a workspace created. See [installation guide](quick-start-installation.md). 
+* Azure Machine Learning Workbench with a workspace created. See [installation guide](https://docs.microsoft.com/en-us/azure/machine-learning/preview/quickstart-installation). 
 * To run this scenario with Spark cluster, provision [Azure HDInsight Spark cluster](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-apache-spark-jupyter-spark-sql) (Spark 2.1 on Linux (HDI 3.6)) for scale-out computation. To process the full amount of MEDLINE abstracts discussed below, we recommend having a cluster with:
     * a head node of type [D13_V2](https://azure.microsoft.com/en-us/pricing/details/hdinsight/) 
     * at least four worker nodes of type [D12_V2](https://azure.microsoft.com/en-us/pricing/details/hdinsight/). 
